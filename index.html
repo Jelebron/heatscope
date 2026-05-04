@@ -17,6 +17,7 @@
       --green: #6dd3a0;
       --yellow: #ffd166;
       --red: #ff5d73;
+      --band: rgba(255, 93, 115, 0.16);
     }
 
     * {
@@ -308,6 +309,10 @@
       background: var(--blue);
     }
 
+    .lg-band::before {
+      background: rgba(255, 93, 115, 0.45);
+    }
+
     .score-bar-wrap {
       margin-top: 16px;
     }
@@ -323,8 +328,7 @@
       height: 100%;
       width: 0%;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--green) 0%, var(--yellow) 55%, var(--red) 100%);
-      transition: width .25s ease;
+      transition: width .25s ease, background .25s ease;
     }
 
     .score-row {
@@ -333,6 +337,23 @@
       color: var(--muted);
       font-size: 13px;
       margin-top: 8px;
+    }
+
+    .score-scale {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .score-scale span {
+      flex: 1;
+      text-align: center;
+      padding: 4px 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
     }
 
     .info-list {
@@ -451,7 +472,7 @@
     <div class="container">
       <h2 class="section-title">單股熱度分析</h2>
       <p class="section-sub">
-        點選排行榜中的股票後，下方會顯示該股票的標準化社群熱度、價格走勢與高熱度區間摘要。
+        點選排行榜中的股票後，下方會顯示該股票的標準化社群熱度、價格走勢與最近一次高熱度區間。
       </p>
 
       <div id="detailPanel" class="panel">
@@ -469,6 +490,10 @@
 
     let leaderboardData = [];
     let currentTicker = null;
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
 
     function badgeClass(level) {
       if (level === "高") return "badge-high";
@@ -494,6 +519,66 @@
       const max = Math.max(...nums);
       if (max === min) return arr.map(() => 50);
       return arr.map(v => ((Number(v) - min) / (max - min)) * 100);
+    }
+
+    function getScoreColor(score) {
+      const s = clamp(Number(score) || 0, 0, 100);
+      const hue = 140 - (140 * s / 100);
+      return `hsl(${hue}, 85%, 60%)`;
+    }
+
+    function getLatestHighHeatRange(chart, threshold = 70) {
+      if (!chart || !chart.length) return null;
+
+      let start = null;
+      let latest = null;
+
+      for (let i = 0; i < chart.length; i++) {
+        const heat = Number(chart[i]?.social_heat || 0);
+        const isHigh = heat >= threshold;
+
+        if (isHigh && start === null) {
+          start = i;
+        }
+
+        const isLast = i === chart.length - 1;
+
+        if (start !== null && (!isHigh || isLast)) {
+          const end = (isHigh && isLast) ? i : i - 1;
+
+          latest = {
+            startIdx: start,
+            endIdx: end,
+            startDate: chart[start]?.date || "N/A",
+            endDate: chart[end]?.date || "N/A",
+            duration: end - start + 1
+          };
+
+          start = null;
+        }
+      }
+
+      return latest;
+    }
+
+    function getChartWindow(chart, latestRange) {
+      if (!chart || !chart.length) return { data: [], offset: 0 };
+
+      if (latestRange) {
+        const buffer = 15;
+        const start = Math.max(0, latestRange.startIdx - buffer);
+        const end = Math.min(chart.length, latestRange.endIdx + buffer + 1);
+        return {
+          data: chart.slice(start, end),
+          offset: start
+        };
+      }
+
+      const start = Math.max(0, chart.length - 60);
+      return {
+        data: chart.slice(start),
+        offset: start
+      };
     }
 
     function renderLeaderboard(items) {
@@ -523,10 +608,14 @@
         return `<div class="loading">沒有可顯示的圖表資料。</div>`;
       }
 
-      const recent = chart.slice(-60);
+      const latestRange = getLatestHighHeatRange(chart, 70);
+      const windowed = getChartWindow(chart, latestRange);
+      const recent = windowed.data;
+      const offset = windowed.offset;
+
       const W = 720;
-      const H = 320;
-      const P = 46;
+      const H = 340;
+      const P = 50;
 
       const heat = recent.map(d => Number(d.social_heat || 0));
       const priceNorm = normalize(recent.map(d => Number(d.close || 0)));
@@ -550,6 +639,24 @@
         `;
       });
 
+      let band = "";
+      if (latestRange) {
+        const startInSlice = latestRange.startIdx - offset;
+        const endInSlice = latestRange.endIdx - offset;
+
+        if (startInSlice >= 0 && endInSlice < recent.length) {
+          const step = n > 1 ? (W - P * 2) / (n - 1) : 0;
+          const bandX1 = clamp(x(startInSlice) - step / 2, P, W - P);
+          const bandX2 = clamp(x(endInSlice) + step / 2, P, W - P);
+          const bandWidth = Math.max(0, bandX2 - bandX1);
+
+          band = `
+            <rect x="${bandX1}" y="${P}" width="${bandWidth}" height="${H - P * 2}" fill="rgba(255,93,115,0.14)" rx="8" />
+            <text x="${bandX1 + 6}" y="${P + 14}" text-anchor="start">最近一次高熱度區間</text>
+          `;
+        }
+      }
+
       const firstDate = recent[0]?.date || "";
       const midDate = recent[Math.floor((recent.length - 1) / 2)]?.date || "";
       const lastDate = recent[recent.length - 1]?.date || "";
@@ -558,6 +665,7 @@
         <div class="chart-wrap">
           <svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
             ${grid}
+            ${band}
 
             <line x1="${P}" y1="${P}" x2="${P}" y2="${H - P}" stroke="rgba(255,255,255,0.25)" />
             <line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="rgba(255,255,255,0.25)" />
@@ -582,8 +690,13 @@
           </svg>
 
           <div class="legend">
+            <span class="lg-band">最近一次高熱度區間</span>
             <span class="lg-heat">標準化社群熱度</span>
             <span class="lg-price">股價趨勢（標準化）</span>
+          </div>
+
+          <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
+            若存在高熱度區間，圖表會自動顯示該區間前後各 15 個交易日；若不存在，則顯示最近 60 個交易日。
           </div>
         </div>
       `;
@@ -659,10 +772,20 @@
     function renderStockDetail(data) {
       const panel = document.getElementById("detailPanel");
 
-      const heat = data.heat_score ?? 0;
+      const heat = Number(data.heat_score ?? 0);
       const level = data.heat_level || "低";
       const market = data.market_summary || {};
       const socialIndex = data.social_index || {};
+      const scoreColor = getScoreColor(heat);
+
+      const latestRange = getLatestHighHeatRange(data.chart || [], 70);
+      const latestRangeText = latestRange
+        ? `${latestRange.startDate} ～ ${latestRange.endDate}`
+        : "N/A";
+
+      const latestDurationText = latestRange
+        ? `${latestRange.duration} 天`
+        : "0 天";
 
       panel.innerHTML = `
         <div class="status-row">
@@ -676,12 +799,17 @@
         <div class="grid-4">
           <div class="card">
             <div class="metric-label">Heat Score</div>
-            <div class="metric-value">${Number(heat).toFixed(1)}</div>
+            <div class="metric-value" style="color:${scoreColor};">${heat.toFixed(1)}</div>
             <div class="score-bar-wrap">
               <div class="score-bar-bg">
-                <div class="score-bar-fill" style="width:${Math.max(0, Math.min(100, heat))}%"></div>
+                <div class="score-bar-fill" style="width:${clamp(heat, 0, 100)}%; background:${scoreColor};"></div>
               </div>
-              <div class="score-row"><span>0</span><strong>${Number(heat).toFixed(1)} / 100</strong><span>100</span></div>
+              <div class="score-row"><span>0</span><strong style="color:${scoreColor};">${heat.toFixed(1)} / 100</strong><span>100</span></div>
+              <div class="score-scale">
+                <span style="color:#6dd3a0;">0–33 低</span>
+                <span style="color:#ffd166;">34–66 中</span>
+                <span style="color:#ff5d73;">67–100 高</span>
+              </div>
             </div>
           </div>
 
@@ -692,15 +820,15 @@
           </div>
 
           <div class="card">
-            <div class="metric-label">最近一次高熱度</div>
-            <div class="metric-value" style="font-size:24px;">${data.last_high_heat_period || "N/A"}</div>
-            <div class="metric-sub">高熱度定義：social heat ≥ 70</div>
+            <div class="metric-label">最近一次高熱度區間</div>
+            <div class="metric-value" style="font-size:22px;">${latestRangeText}</div>
+            <div class="metric-sub">以 social heat ≥ 70 的最近連續區間定義</div>
           </div>
 
           <div class="card">
-            <div class="metric-label">高熱度持續</div>
-            <div class="metric-value">${data.high_heat_duration_days ?? 0} 天</div>
-            <div class="metric-sub">最近一次連續高熱度區間長度</div>
+            <div class="metric-label">區間持續時間</div>
+            <div class="metric-value">${latestDurationText}</div>
+            <div class="metric-sub">最近一次高熱度區間長度</div>
           </div>
         </div>
 
@@ -718,6 +846,7 @@
               <div class="info-item"><span>PTT 熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
               <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${formatScore(socialIndex.reddit_contribution)}</strong></div>
               <div class="info-item"><span>社群熱度趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
+              <div class="info-item"><span>最近一次高熱度區間</span><strong>${latestRangeText}</strong></div>
               <div class="info-item"><span>區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
               <div class="info-item"><span>平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
               <div class="info-item"><span>融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
