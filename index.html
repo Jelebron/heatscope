@@ -473,7 +473,7 @@
 
     async function loadMarketData() {
       try {
-        const res = await fetch("./market-data.json");
+        const res = await fetch("https://a236eae4-dfc1-404b-bc56-746ccf748191-00-3t5sqb15djwtq.pike.replit.dev/heatscope-api/api/mega7/heat");
         if (!res.ok) throw new Error("market-data.json not found");
         const json = await res.json();
         if (!json || Object.keys(json).length === 0) throw new Error("empty data");
