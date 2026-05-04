@@ -455,7 +455,7 @@
           <div class="mini-item"><span>前端</span><strong>GitHub Pages</strong></div>
           <div class="mini-item"><span>後端</span><strong>Replit FastAPI</strong></div>
           <div class="mini-item"><span>資料</span><strong>Yahoo + PTT + Reddit</strong></div>
-          <div class="mini-item"><span>標的</span><strong>Mega 7</strong></div>
+          <div class="mini-item"><span>標的</span><strong>AI / 半導體 / 記憶體 21 檔</strong></div>
         </div>
       </div>
     </div>
@@ -463,9 +463,9 @@
 
   <section>
     <div class="container">
-      <h2 class="section-title">Mega 7 社群熱度排行榜</h2>
+      <h2 class="section-title">AI / 半導體 / 記憶體社群熱度排行榜</h2>
       <p class="section-sub">
-        排行榜由後端即時抓取資料產生，依 Heat Score 由高到低排序。
+        排行榜涵蓋 Mega 7、AI、半導體與記憶體相關標的，依綜合熱度風險由高到低排序。
       </p>
 
       <div class="panel">
@@ -475,7 +475,7 @@
         </div>
 
         <div id="leaderboard" class="leaderboard">
-          <div class="loading">載入 Mega 7 熱度排行榜中...</div>
+          <div class="loading">載入社群熱度排行榜中...</div>
         </div>
       </div>
     </div>
@@ -743,7 +743,7 @@
 
       try {
         status.textContent = "正在連接 HeatScope API...";
-        const res = await fetch(`${API_BASE}/api/mega7/heat`);
+        const res = await fetch(`${API_BASE}/api/watchlist/heat`);
 
         if (!res.ok) {
           throw new Error(`API 回應錯誤：${res.status}`);
