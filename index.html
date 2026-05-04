@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HeatScope Demo</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel-2: #182247;
+      --text: #eef2ff;
+      --muted: #b7c0e0;
+      --accent: #6ea8fe;
+      --accent-2: #ff9f43;
+      --danger: #ff5d73;
+      --ok: #6dd3a0;
+      --mid: #ffd166;
+      --line: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Noto Sans TC", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg, #0b1020 0%, #101735 100%);
+      color: var(--text);
+    }
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .hero {
+      padding: 56px 0 28px;
+    }
+    .hero-card, .panel {
+      background: rgba(18,25,51,0.9);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.24);
+    }
+    .hero-card {
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 24px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(110,168,254,0.12);
+      border: 1px solid rgba(110,168,254,0.25);
+      color: #d9e6ff;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.7;
+      margin: 0;
+      max-width: 700px;
+    }
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #0a1535; }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--line); }
+
+    .quick-box {
+      background: linear-gradient(180deg, rgba(24,34,71,0.95), rgba(16,23,53,0.95));
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid var(--line);
+    }
+    .quick-box h3 { margin: 0 0 10px; font-size: 16px; color: #dce6ff; }
+    .mini-list { display: grid; gap: 10px; margin-top: 12px; }
+    .mini-item {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 12px 14px; background: rgba(255,255,255,0.04); border-radius: 14px;
+      color: var(--muted); font-size: 14px;
+    }
+
+    section { padding: 18px 0; }
+    .section-title {
+      font-size: 28px; font-weight: 800; margin: 0 0 10px;
+    }
+    .section-sub {
+      margin: 0 0 20px; color: var(--muted); line-height: 1.7;
+    }
+
+    .grid-3, .grid-4, .grid-2 {
+      display: grid; gap: 16px;
+    }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-2 { grid-template-columns: 1.15fr 0.85fr; }
+
+    .card {
+      background: rgba(18,25,51,0.92);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 20px;
+    }
+    .card h3, .card h4 { margin: 0 0 10px; }
+    .card p { margin: 0; color: var(--muted); line-height: 1.7; }
+
+    .metric-value {
+      font-size: 34px; font-weight: 800; margin-top: 8px;
+    }
+    .metric-sub {
+      color: var(--muted); font-size: 13px; margin-top: 6px;
+    }
+    .risk-high { color: var(--danger); }
+    .risk-mid { color: var(--mid); }
+    .risk-low { color: var(--ok); }
+
+    .demo-controls {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
+    }
+    .ticker-btn {
+      padding: 10px 14px; border-radius: 999px; border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer;
+      font-weight: 700;
+    }
+    .ticker-btn.active { background: var(--accent); color: #0a1535; border-color: transparent; }
+
+    .chart-wrap {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    svg text { fill: #c9d3f4; font-size: 12px; }
+    .legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+    .legend span::before {
+      content: "";
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    .lg-heat::before { background: var(--accent-2); }
+    .lg-price::before { background: var(--accent); }
+
+    .compare-list { display: grid; gap: 12px; }
+    .compare-item {
+      display: flex; justify-content: space-between; gap: 12px; align-items: center;
+      padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.04);
+    }
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .tag-high { background: rgba(255,93,115,0.15); color: #ffc6ce; }
+    .tag-mid { background: rgba(255,209,102,0.15); color: #ffe7a6; }
+    .tag-low { background: rgba(109,211,160,0.15); color: #cef7e1; }
+
+    .score-bar-wrap {
+      margin-top: 14px;
+      margin-bottom: 14px;
+    }
+    .score-bar-bg {
+      width: 100%;
+      height: 14px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.25s ease;
+      background: linear-gradient(90deg, #6dd3a0 0%, #ffd166 55%, #ff5d73 100%);
+    }
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer {
+      padding: 30px 0 60px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 920px) {
+      .hero-card, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container hero">
+    <div class="hero-card">
+      <div>
+        <div class="eyebrow">🔥 HeatScope Demo</div>
+        <h1>判斷一檔熱門股，<br>是剛升溫，還是已接近過熱。</h1>
+        <p>
+          HeatScope 是一個股票熱度風險提示工具。它不只是告訴你現在有多熱，
+          還會告訴你這波高討論度已經持續多久，並搭配價格、成交量與市場方向，
+          幫助使用者降低 FOMO 追高風險，或辨識偏空高關注事件。
+        </p>
+        <div class="cta-row">
+          <button class="btn btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">查看 Demo</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('logic').scrollIntoView({behavior:'smooth'})">看運作邏輯</button>
+        </div>
+      </div>
+      <div class="quick-box">
+        <h3>目前版本說明</h3>
+        <div class="mini-list">
+          <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + heat proxy</strong></div>
+          <div class="mini-item"><span>已完成</span><strong>價格 / 量 / score / alert</strong></div>
+          <div class="mini-item"><span>下一步</span><strong>Google Trends → PTT → Reddit</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="container">
+      <h2 class="section-title">這個工具在解決什麼？</h2>
+      <p class="section-sub">
+        很多投資人是先在社群看到某支股票爆紅，才開始注意它。但現在大部分工具只能告訴你「現在很熱」，
+        不會告訴你「這波已經熱多久了」以及「這個高關注事件是偏多還是偏空」。
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <h3>資訊傳播太快</h3>
+          <p>單一個股消息很容易快速擴散，投資人常常在情緒已高時才進場。</p>
+        </div>
+        <div class="card">
+          <h3>缺少時間脈絡</h3>
+          <p>看到熱度高，卻不知道是剛開始升溫，還是已經接近過熱尾端。</p>
+        </div>
+        <div class="card">
+          <h3>方向也很重要</h3>
+          <p>高熱度不一定偏多，也可能是負面事件或做空機會，因此需要判斷事件方向。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="container">
+      <h2 class="section-title">簡單 Demo</h2>
+      <p class="section-sub">
+        這一版已讀取你生成的 <code>market-data.json</code>。目前先用 Yahoo Finance 市場資料建立 heat proxy，
+        展示最核心的產品邏輯。
+      </p>
+      <div class="panel" style="padding:20px;">
+        <div class="demo-controls" id="tickerButtons"></div>
+        <div class="grid-4" id="metrics"></div>
+
+        <div class="grid-2" style="margin-top:16px;">
+          <div class="card">
+            <h3>熱度趨勢 vs 價格趨勢</h3>
+            <div class="chart-wrap">
+              <svg id="chart" width="100%" viewBox="0 0 640 260" preserveAspectRatio="none"></svg>
+              <div class="legend">
+                <span class="lg-heat">熱度指數（0–100）</span>
+                <span class="lg-price">價格趨勢（標準化）</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Heat Risk Alert</h3>
+            <div id="riskTag"></div>
+
+            <div class="score-bar-wrap">
+              <div class="score-bar-bg">
+                <div class="score-bar-fill" id="scoreFill" style="width:0%"></div>
+              </div>
+              <div class="score-row">
+                <span>0</span>
+                <strong id="scoreText">0 / 100</strong>
+                <span>100</span>
+              </div>
+            </div>
+
+            <p id="riskText"></p>
+            <div style="height:16px"></div>
+            <div class="compare-list" id="compareList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="logic">
+    <div class="container">
+      <h2 class="section-title">運作邏輯</h2>
+      <p class="section-sub">
+        這一版先讓產品邏輯可展示：先看高熱度、再看持續時間、再看方向與風險。之後再逐步導入真實社群資料。
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Step 1｜熱度異常程度</h3>
+          <p>以一年期基準計算熱度 Z 分數；若 Z-score &gt; 2，視為高熱度。</p>
+        </div>
+        <div class="card">
+          <h3>Step 2｜這波熱多久</h3>
+          <p>觀察熱度指數 5 日均線是否持續上升，判斷這波是否仍在升溫期。</p>
+        </div>
+        <div class="card">
+          <h3>Step 3｜方向與風險</h3>
+          <p>搭配價格方向與成交量反應，區分偏多升溫、偏空事件或一般觀察區。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container footer">
+    HeatScope Demo · 靜態單頁網站 · 可部署至 GitHub Pages
+  </div>
+
+  <script>
+    const fallbackDataset = {
+      "TSMC": {
+        "name": "台積電",
+        "theme": "個股示範",
+        "heat": [47.87,100,58.74,28.01,19.07,67.52,30.76,86.44,42.91,48.86,19.56,31.01,18.64,0],
+        "price": [375.1,363.35,370.5,366.24,368.08,387.44,382.66,402.46,404.98,392.34,393.83,396.06,397.67,398.95],
+        "volume": "-65.7%",
+        "margin": "尚未導入",
+        "duration": "0 天",
+        "period": "近期未達高熱度門檻",
+        "risk": "低",
+        "compare": [["目前 Z 分數","-1.16"],["高熱度持續時間","0 天"],["目前 heat risk score","10 / 100"],["可能情境","一般觀察"],["風險等級","低"]],
+        "sentiment": "中性",
+        "setup": "一般觀察",
+        "alert": "目前 台積電 的熱度 Z 分數為 -1.16，目前尚未進入高熱度持續區間。系統判定目前屬於「一般觀察」：目前熱度未達異常門檻。目前 Heat Risk Score 為 10/100，屬於低風險。這一版先以市場資料推估 heat proxy；後續導入 Google Trends、PTT 與 Reddit 後，可更完整判斷偏多/偏空情緒。"
+      }
+    };
+
+    let dataset = fallbackDataset;
+    let current = "TSMC";
+
+    function normalize(arr) {
+      const min = Math.min(...arr);
+      const max = Math.max(...arr);
+      if (max === min) return arr.map(() => 50);
+      return arr.map(v => ((v - min) / (max - min)) * 100);
+    }
+
+    function riskClass(level) {
+      if (level === "高") return "tag-high";
+      if (level === "中" || level === "中高") return "tag-mid";
+      return "tag-low";
+    }
+
+    function renderButtons() {
+      const box = document.getElementById("tickerButtons");
+      box.innerHTML = "";
+      Object.keys(dataset).forEach(key => {
+        const btn = document.createElement("button");
+        btn.className = "ticker-btn" + (key === current ? " active" : "");
+        btn.textContent = `${key} · ${dataset[key].name}`;
+        btn.onclick = () => {
+          current = key;
+          render();
+        };
+        box.appendChild(btn);
+      });
+    }
+
+    function renderMetrics(data) {
+      const metrics = [
+        ["標的", `${current} · ${data.name}`, `題材：${data.theme}`],
+        ["高熱度持續時間", data.duration, "目前這波高熱度已持續多久"],
+        ["最近一次高熱度事件", data.period, "若無則代表近期未達高熱度門檻"],
+        ["事件方向", data.setup || "一般觀察", `情緒判讀：${data.sentiment || "中性"}`],
+      ];
+
+      const box = document.getElementById("metrics");
+      box.innerHTML = metrics.map(([title, value, sub]) => `
+        <div class="card">
+          <div style="color:var(--muted);font-size:14px;">${title}</div>
+          <div class="metric-value" style="font-size:30px;">${value}</div>
+          <div class="metric-sub">${sub}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderChart(data) {
+      const svg = document.getElementById("chart");
+      const W = 640, H = 260, P = 26;
+      const heat = data.heat;
+      const price = normalize(data.price);
+      const n = heat.length;
+
+      const x = i => P + (i * (W - P * 2)) / (n - 1);
+      const y = v => H - P - (v * (H - P * 2)) / 100;
+
+      const toPath = arr => arr.map((v, i) => `${i === 0 ? "M" : "L"} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
+
+      let grid = "";
+      for (let i = 0; i < 5; i++) {
+        const gy = P + ((H - P * 2) * i) / 4;
+        grid += `<line x1="${P}" y1="${gy}" x2="${W-P}" y2="${gy}" stroke="rgba(255,255,255,0.08)" />`;
+      }
+
+      const labels = Array.from({length: n}, (_, i) => `<text x="${x(i)}" y="246" text-anchor="middle">D${i+1}</text>`).join("");
+
+      svg.innerHTML = `
+        ${grid}
+        <path d="${toPath(heat)}" fill="none" stroke="#ff9f43" stroke-width="3" stroke-linecap="round" />
+        <path d="${toPath(price)}" fill="none" stroke="#6ea8fe" stroke-width="3" stroke-linecap="round" />
+        ${labels}
+      `;
+    }
+
+    function extractScore(compare) {
+      const row = compare.find(item => item[0] === "目前 heat risk score");
+      if (!row) return 0;
+      const match = row[1].match(/^(\d+)/);
+      return match ? Number(match[1]) : 0;
+    }
+
+    function renderRisk(data) {
+      const score = extractScore(data.compare || []);
+      const risk = data.risk || "低";
+
+      document.getElementById("riskTag").innerHTML = `<span class="tag ${riskClass(risk)}">${risk}風險</span>`;
+      document.getElementById("scoreFill").style.width = `${score}%`;
+      document.getElementById("scoreText").textContent = `${score} / 100`;
+      document.getElementById("riskText").textContent = data.alert || "";
+
+      document.getElementById("compareList").innerHTML = (data.compare || []).map(([k, v]) => `
+        <div class="compare-item">
+          <span style="color:var(--muted)">${k}</span>
+          <strong>${v}</strong>
+        </div>
+      `).join("");
+    }
+
+    function render() {
+      const data = dataset[current];
+      if (!data) return;
+      renderButtons();
+      renderMetrics(data);
+      renderChart(data);
+      renderRisk(data);
+    }
+
+    async function loadMarketData() {
+      try {
+        const res = await fetch("./market-data.json");
+        if (!res.ok) throw new Error("market-data.json not found");
+        const json = await res.json();
+        if (!json || Object.keys(json).length === 0) throw new Error("empty data");
+        dataset = json;
+        if (!dataset[current]) current = Object.keys(dataset)[0];
+      } catch (e) {
+        dataset = fallbackDataset;
+      }
+      render();
+    }
+
+    loadMarketData();
+  </script>
+</body>
+</html>
