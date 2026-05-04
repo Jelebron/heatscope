@@ -525,8 +525,8 @@
 
       const recent = chart.slice(-60);
       const W = 720;
-      const H = 280;
-      const P = 28;
+      const H = 320;
+      const P = 46;
 
       const heat = recent.map(d => Number(d.social_heat || 0));
       const priceNorm = normalize(recent.map(d => Number(d.close || 0)));
@@ -540,23 +540,47 @@
       }).join(" ");
 
       let grid = "";
-      for (let i = 0; i < 5; i++) {
-        const gy = P + ((H - P * 2) * i) / 4;
-        grid += `<line x1="${P}" y1="${gy}" x2="${W-P}" y2="${gy}" stroke="rgba(255,255,255,0.08)" />`;
-      }
+      const yTicks = [0, 25, 50, 75, 100];
+
+      yTicks.forEach(tick => {
+        const gy = y(tick);
+        grid += `
+          <line x1="${P}" y1="${gy}" x2="${W - P}" y2="${gy}" stroke="rgba(255,255,255,0.08)" />
+          <text x="${P - 10}" y="${gy + 4}" text-anchor="end">${tick}</text>
+        `;
+      });
 
       const firstDate = recent[0]?.date || "";
+      const midDate = recent[Math.floor((recent.length - 1) / 2)]?.date || "";
       const lastDate = recent[recent.length - 1]?.date || "";
 
       return `
         <div class="chart-wrap">
           <svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
             ${grid}
+
+            <line x1="${P}" y1="${P}" x2="${P}" y2="${H - P}" stroke="rgba(255,255,255,0.25)" />
+            <line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="rgba(255,255,255,0.25)" />
+
             <path d="${toPath(heat)}" fill="none" stroke="#ff9f43" stroke-width="3" stroke-linecap="round" />
             <path d="${toPath(priceNorm)}" fill="none" stroke="#6ea8fe" stroke-width="3" stroke-linecap="round" />
-            <text x="${P}" y="${H - 6}" text-anchor="start">${firstDate}</text>
-            <text x="${W - P}" y="${H - 6}" text-anchor="end">${lastDate}</text>
+
+            <text x="${P}" y="${H - 14}" text-anchor="start">${firstDate}</text>
+            <text x="${W / 2}" y="${H - 14}" text-anchor="middle">${midDate}</text>
+            <text x="${W - P}" y="${H - 14}" text-anchor="end">${lastDate}</text>
+
+            <text x="${W / 2}" y="${H - 2}" text-anchor="middle">日期</text>
+
+            <text
+              x="16"
+              y="${H / 2}"
+              text-anchor="middle"
+              transform="rotate(-90 16 ${H / 2})"
+            >
+              標準化指數（0–100）
+            </text>
           </svg>
+
           <div class="legend">
             <span class="lg-heat">標準化社群熱度</span>
             <span class="lg-price">股價趨勢（標準化）</span>
