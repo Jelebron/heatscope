@@ -14,8 +14,8 @@
       --line: rgba(255,255,255,0.1);
       --blue: #6ea8fe;
       --orange: #ff9f43;
-      --green: #6dd3a0;
-      --yellow: #ffd166;
+      --green: #35d07f;
+      --yellow: #f6d85b;
       --red: #ff5d73;
       --band: rgba(255, 93, 115, 0.16);
     }
@@ -249,12 +249,12 @@
     }
 
     .badge-low {
-      background: rgba(109,211,160,0.14);
+      background: rgba(53,208,127,0.14);
       color: #cef7e1;
     }
 
     .badge-mid {
-      background: rgba(255,209,102,0.16);
+      background: rgba(246,216,91,0.16);
       color: #ffe7a6;
     }
 
@@ -317,30 +317,43 @@
       margin-top: 16px;
     }
 
-    .score-bar-bg {
-      height: 14px;
-      background: rgba(255,255,255,0.08);
+    .score-gradient-bar {
+      position: relative;
+      height: 16px;
       border-radius: 999px;
-      overflow: hidden;
+      background: linear-gradient(
+        90deg,
+        #35d07f 0%,
+        #f6d85b 50%,
+        #ff5d73 100%
+      );
+      overflow: visible;
+      margin-top: 14px;
     }
 
-    .score-bar-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: 999px;
-      transition: width .25s ease, background .25s ease;
+    .score-marker {
+      position: absolute;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      background: currentColor;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.12);
     }
 
     .score-row {
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
       color: var(--muted);
       font-size: 13px;
-      margin-top: 8px;
     }
 
     .score-scale {
-      margin-top: 8px;
+      margin-top: 10px;
       display: flex;
       justify-content: space-between;
       gap: 8px;
@@ -523,8 +536,20 @@
 
     function getScoreColor(score) {
       const s = clamp(Number(score) || 0, 0, 100);
-      const hue = 140 - (140 * s / 100);
-      return `hsl(${hue}, 85%, 60%)`;
+
+      if (s <= 50) {
+        const t = s / 50;
+        const r = Math.round(53 + (246 - 53) * t);
+        const g = Math.round(208 + (216 - 208) * t);
+        const b = Math.round(127 + (91 - 127) * t);
+        return `rgb(${r}, ${g}, ${b})`;
+      } else {
+        const t = (s - 50) / 50;
+        const r = Math.round(246 + (255 - 246) * t);
+        const g = Math.round(216 + (93 - 216) * t);
+        const b = Math.round(91 + (115 - 91) * t);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
     }
 
     function getLatestHighHeatRange(chart, threshold = 70) {
@@ -559,6 +584,16 @@
       }
 
       return latest;
+    }
+
+    function formatHighHeatRange(range) {
+      if (!range) return "N/A";
+
+      if (range.startDate === range.endDate) {
+        return `${range.startDate}（單日高熱）`;
+      }
+
+      return `${range.startDate} ～ ${range.endDate}`;
     }
 
     function getChartWindow(chart, latestRange) {
@@ -648,10 +683,10 @@
           const step = n > 1 ? (W - P * 2) / (n - 1) : 0;
           const bandX1 = clamp(x(startInSlice) - step / 2, P, W - P);
           const bandX2 = clamp(x(endInSlice) + step / 2, P, W - P);
-          const bandWidth = Math.max(0, bandX2 - bandX1);
+          const bandWidth = Math.max(8, bandX2 - bandX1);
 
           band = `
-            <rect x="${bandX1}" y="${P}" width="${bandWidth}" height="${H - P * 2}" fill="rgba(255,93,115,0.14)" rx="8" />
+            <rect x="${bandX1}" y="${P}" width="${bandWidth}" height="${H - P * 2}" fill="rgba(255,93,115,0.16)" rx="8" />
             <text x="${bandX1 + 6}" y="${P + 14}" text-anchor="start">最近一次高熱度區間</text>
           `;
         }
@@ -779,13 +814,8 @@
       const scoreColor = getScoreColor(heat);
 
       const latestRange = getLatestHighHeatRange(data.chart || [], 70);
-      const latestRangeText = latestRange
-        ? `${latestRange.startDate} ～ ${latestRange.endDate}`
-        : "N/A";
-
-      const latestDurationText = latestRange
-        ? `${latestRange.duration} 天`
-        : "0 天";
+      const latestRangeText = formatHighHeatRange(latestRange);
+      const latestDurationText = latestRange ? `${latestRange.duration} 天` : "0 天";
 
       panel.innerHTML = `
         <div class="status-row">
@@ -798,19 +828,31 @@
 
         <div class="grid-4">
           <div class="card">
-            <div class="metric-label">Heat Score</div>
+            <div class="metric-label">綜合熱度風險</div>
             <div class="metric-value" style="color:${scoreColor};">${heat.toFixed(1)}</div>
+
             <div class="score-bar-wrap">
-              <div class="score-bar-bg">
-                <div class="score-bar-fill" style="width:${clamp(heat, 0, 100)}%; background:${scoreColor};"></div>
+              <div class="score-gradient-bar">
+                <div
+                  class="score-marker"
+                  style="left:${clamp(heat, 0, 100)}%; color:${scoreColor};"
+                ></div>
               </div>
-              <div class="score-row"><span>0</span><strong style="color:${scoreColor};">${heat.toFixed(1)} / 100</strong><span>100</span></div>
+
+              <div class="score-row">
+                <span>0</span>
+                <strong style="color:${scoreColor};">${heat.toFixed(1)} / 100</strong>
+                <span>100</span>
+              </div>
+
               <div class="score-scale">
-                <span style="color:#6dd3a0;">0–33 低</span>
-                <span style="color:#ffd166;">34–66 中</span>
-                <span style="color:#ff5d73;">67–100 高</span>
+                <span style="color:#35d07f;">低風險</span>
+                <span style="color:#f6d85b;">中性偏熱</span>
+                <span style="color:#ff5d73;">高風險</span>
               </div>
             </div>
+
+            <div class="metric-sub">依分數所在位置對應綠 → 黃 → 紅色帶</div>
           </div>
 
           <div class="card">
