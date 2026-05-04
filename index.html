@@ -159,12 +159,6 @@
       gap: 16px;
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-
     .grid-4 {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -306,8 +300,13 @@
       vertical-align: middle;
     }
 
-    .lg-heat::before { background: var(--orange); }
-    .lg-price::before { background: var(--blue); }
+    .lg-heat::before {
+      background: var(--orange);
+    }
+
+    .lg-price::before {
+      background: var(--blue);
+    }
 
     .score-bar-wrap {
       margin-top: 16px;
@@ -387,7 +386,6 @@
     @media (max-width: 980px) {
       .hero-card,
       .grid-2,
-      .grid-3,
       .grid-4 {
         grid-template-columns: 1fr;
       }
@@ -412,7 +410,7 @@
         <h1>用社群熱度判斷熱門股，是剛升溫，還是已經過熱。</h1>
         <p>
           HeatScope 會整合 Yahoo Finance、PTT 與 Reddit 的公開資料，
-          將社群討論量轉換成 Heat Score，並搭配股價、成交量與高熱度區間，
+          將社群討論量轉換成標準化熱度指標，並搭配股價、成交量與高熱度區間，
           協助使用者理解 FOMO 風險與市場情緒。
         </p>
       </div>
@@ -453,7 +451,7 @@
     <div class="container">
       <h2 class="section-title">單股熱度分析</h2>
       <p class="section-sub">
-        點選排行榜中的股票後，下方會顯示該股票的社群熱度、價格走勢與高熱度區間摘要。
+        點選排行榜中的股票後，下方會顯示該股票的標準化社群熱度、價格走勢與高熱度區間摘要。
       </p>
 
       <div id="detailPanel" class="panel">
@@ -482,6 +480,11 @@
       if (value === null || value === undefined || Number.isNaN(Number(value))) return "N/A";
       const n = Number(value);
       return `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
+    }
+
+    function formatScore(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "N/A";
+      return `${Number(value).toFixed(1)} / 100`;
     }
 
     function normalize(arr) {
@@ -555,7 +558,7 @@
             <text x="${W - P}" y="${H - 6}" text-anchor="end">${lastDate}</text>
           </svg>
           <div class="legend">
-            <span class="lg-heat">Social Heat</span>
+            <span class="lg-heat">標準化社群熱度</span>
             <span class="lg-price">股價趨勢（標準化）</span>
           </div>
         </div>
@@ -635,7 +638,7 @@
       const heat = data.heat_score ?? 0;
       const level = data.heat_level || "低";
       const market = data.market_summary || {};
-      const social = data.social_summary || {};
+      const socialIndex = data.social_index || {};
 
       panel.innerHTML = `
         <div class="status-row">
@@ -684,18 +687,16 @@
           </div>
 
           <div class="card">
-            <h3 style="margin:0 0 14px;">區間摘要</h3>
+            <h3 style="margin:0 0 14px;">標準化熱度與區間摘要</h3>
 
             <div class="info-list">
+              <div class="info-item"><span>社群熱度指數</span><strong>${formatScore(socialIndex.overall)}</strong></div>
+              <div class="info-item"><span>PTT 熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
+              <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${formatScore(socialIndex.reddit_contribution)}</strong></div>
+              <div class="info-item"><span>社群熱度趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
               <div class="info-item"><span>區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
               <div class="info-item"><span>平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
               <div class="info-item"><span>融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
-              <div class="info-item"><span>PTT 文章數</span><strong>${social.ptt_posts ?? 0}</strong></div>
-              <div class="info-item"><span>PTT 推文數</span><strong>${social.ptt_comments ?? 0}</strong></div>
-              <div class="info-item"><span>PTT 提及數</span><strong>${social.ptt_mentions ?? 0}</strong></div>
-              <div class="info-item"><span>Reddit 貼文數</span><strong>${social.reddit_posts ?? 0}</strong></div>
-              <div class="info-item"><span>Reddit 留言數</span><strong>${social.reddit_comments ?? 0}</strong></div>
-              <div class="info-item"><span>Reddit 提及數</span><strong>${social.reddit_mentions ?? 0}</strong></div>
               <div class="info-item"><span>資料狀態</span><strong>${data.data_status || "N/A"}</strong></div>
             </div>
           </div>
