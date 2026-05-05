@@ -543,7 +543,7 @@
           <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
           <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號 + 台股公司名稱</strong></div>
           <div class="mini-item"><span>核心指標</span><strong>近一年標準化社群熱度</strong></div>
-          <div class="mini-item"><span>區間定義</span><strong>近 5 日內曾達 70</strong></div>
+          <div class="mini-item"><span>區間定義</span><strong>單日達標後 5 交易日有效</strong></div>
           <div class="mini-item"><span>台股處理</span><strong>不採用 Reddit 加權</strong></div>
         </div>
       </div>
@@ -687,18 +687,22 @@
       }
     }
 
-    function getHighHeatValue(point) {
+    function isHighHeatPoint(point, threshold = 70) {
+      if (point?.is_high_heat_period === true) {
+        return true;
+      }
+
       const max5 = point?.social_heat_5d_max;
       if (max5 !== null && max5 !== undefined && !Number.isNaN(Number(max5))) {
-        return Number(max5);
+        return Number(max5) >= threshold;
       }
 
       const heat = point?.social_heat;
       if (heat !== null && heat !== undefined && !Number.isNaN(Number(heat))) {
-        return Number(heat);
+        return Number(heat) >= threshold;
       }
 
-      return 0;
+      return false;
     }
 
     function getLatestHighHeatRange(chart, threshold = 70) {
@@ -708,8 +712,7 @@
       let latest = null;
 
       for (let i = 0; i < chart.length; i++) {
-        const heatSignal = getHighHeatValue(chart[i]);
-        const isHigh = heatSignal >= threshold;
+        const isHigh = isHighHeatPoint(chart[i], threshold);
 
         if (isHigh && start === null) {
           start = i;
@@ -882,7 +885,7 @@
           </div>
 
           <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並以「近 5 個交易日內曾有一天社群熱度 ≥ 70」標示社群高熱度區間。
+            社群熱度以近一年資料作為標準化基準；當單日社群熱度 ≥ 70 時，該訊號在接下來 5 個交易日內仍視為有效；若期間再次出現高熱度訊號，則區間會繼續延長。
           </div>
         </div>
       `;
@@ -1021,7 +1024,7 @@
           <div class="card">
             <div class="metric-label">目前狀態</div>
             <div class="metric-value" style="font-size:24px;">${data.current_status || "N/A"}</div>
-            <div class="metric-sub">以近 5 個交易日內是否曾達高熱度判斷</div>
+            <div class="metric-sub">以社群高熱度訊號的 5 交易日有效期判斷</div>
           </div>
 
           <div class="card">
