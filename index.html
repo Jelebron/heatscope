@@ -504,10 +504,10 @@
       <div class="quick-box">
         <h3>目前版本</h3>
         <div class="mini-list">
-          <div class="mini-item"><span>前端</span><strong>GitHub Pages</strong></div>
-          <div class="mini-item"><span>後端</span><strong>Replit FastAPI</strong></div>
-          <div class="mini-item"><span>資料</span><strong>Yahoo + PTT + Reddit</strong></div>
-          <div class="mini-item"><span>標的</span><strong>AI / 半導體 / 記憶體 21 檔</strong></div>
+          <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
+          <div class="mini-item"><span>分析範圍</span><strong>AI / 半導體 / 記憶體 21 檔</strong></div>
+          <div class="mini-item"><span>核心指標</span><strong>標準化社群熱度</strong></div>
+          <div class="mini-item"><span>用途</span><strong>FOMO / 過熱風險提示</strong></div>
         </div>
       </div>
     </div>
@@ -593,6 +593,29 @@
       return `${Number(value).toFixed(1)} / 100`;
     }
 
+    function formatPeriodStatus(status) {
+      if (status === "ongoing") return "進行中";
+      if (status === "completed") return "已結束";
+      if (status === "none") return "近期無高熱度區間";
+      return "N/A";
+    }
+
+    function formatPeriodRange(market) {
+      const start = market?.period_start;
+      const end = market?.period_end;
+      const status = market?.period_status;
+
+      if (!start || !end || status === "none") {
+        return "N/A";
+      }
+
+      if (start === end) {
+        return `${start}（單日高熱）`;
+      }
+
+      return `${start} ～ ${end}`;
+    }
+
     function normalize(arr) {
       const nums = arr.map(Number).filter(v => !Number.isNaN(v));
       if (!nums.length) return arr.map(() => 50);
@@ -652,16 +675,6 @@
       }
 
       return latest;
-    }
-
-    function formatHighHeatRange(range) {
-      if (!range) return "N/A";
-
-      if (range.startDate === range.endDate) {
-        return `${range.startDate}（單日高熱）`;
-      }
-
-      return `${range.startDate} ～ ${range.endDate}`;
     }
 
     function getChartWindow(chart, latestRange) {
@@ -889,8 +902,15 @@
       const scoreColor = getScoreColor(heat);
 
       const latestRange = getLatestHighHeatRange(data.chart || [], 70);
-      const latestRangeText = formatHighHeatRange(latestRange);
-      const latestDurationText = latestRange ? `${latestRange.duration} 天` : "0 天";
+      const chartRangeText = latestRange
+        ? (latestRange.startDate === latestRange.endDate
+          ? `${latestRange.startDate}（單日高熱）`
+          : `${latestRange.startDate} ～ ${latestRange.endDate}`)
+        : "N/A";
+
+      const periodRangeText = formatPeriodRange(market);
+      const periodStatusText = formatPeriodStatus(market.period_status);
+      const periodDurationText = data.high_heat_duration_days ? `${data.high_heat_duration_days} 天` : "0 天";
 
       panel.innerHTML = `
         <div class="status-row">
@@ -937,15 +957,15 @@
           </div>
 
           <div class="card">
-            <div class="metric-label">最近一次高熱度區間</div>
-            <div class="metric-value" style="font-size:22px;">${latestRangeText}</div>
-            <div class="metric-sub">以 social heat ≥ 70 的最近連續區間定義</div>
+            <div class="metric-label">高熱度區間</div>
+            <div class="metric-value" style="font-size:22px;">${periodRangeText}</div>
+            <div class="metric-sub">若目前不在高熱度區間，則顯示最近一次已結束區間</div>
           </div>
 
           <div class="card">
-            <div class="metric-label">區間持續時間</div>
-            <div class="metric-value">${latestDurationText}</div>
-            <div class="metric-sub">最近一次高熱度區間長度</div>
+            <div class="metric-label">區間狀態</div>
+            <div class="metric-value" style="font-size:24px;">${periodStatusText}</div>
+            <div class="metric-sub">區間持續：${periodDurationText}</div>
           </div>
         </div>
 
@@ -963,10 +983,11 @@
               <div class="info-item"><span>PTT 熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
               <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${formatScore(socialIndex.reddit_contribution)}</strong></div>
               <div class="info-item"><span>社群熱度趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
-              <div class="info-item"><span>最近一次高熱度區間</span><strong>${latestRangeText}</strong></div>
-              <div class="info-item"><span>區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
-              <div class="info-item"><span>平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
-              <div class="info-item"><span>融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
+              <div class="info-item"><span>高熱度區間</span><strong>${periodRangeText}</strong></div>
+              <div class="info-item"><span>區間狀態</span><strong>${periodStatusText}</strong></div>
+              <div class="info-item"><span>高熱度區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
+              <div class="info-item"><span>高熱度區間平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
+              <div class="info-item"><span>高熱度區間融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
               <div class="info-item"><span>資料狀態</span><strong>${data.data_status || "N/A"}</strong></div>
             </div>
           </div>
