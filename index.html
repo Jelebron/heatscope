@@ -532,7 +532,7 @@
         <h1>用社群熱度判斷熱門股，是剛升溫，還是已經過熱。</h1>
         <p>
           HeatScope 會整合 Yahoo Finance、PTT 與 Reddit 的公開資料，
-          將社群討論量轉換成標準化熱度指標，並搭配股價、成交量與高熱度區間，
+          將社群討論量轉換成標準化熱度指標，並搭配股價、成交量與社群高熱度區間，
           協助使用者理解 FOMO 風險與市場情緒。
         </p>
       </div>
@@ -541,8 +541,8 @@
         <h3>目前版本</h3>
         <div class="mini-list">
           <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
-          <div class="mini-item"><span>分析範圍</span><strong>AI / 半導體 / 記憶體 21 檔</strong></div>
-          <div class="mini-item"><span>核心指標</span><strong>標準化社群熱度</strong></div>
+          <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號</strong></div>
+          <div class="mini-item"><span>核心指標</span><strong>近一年標準化社群熱度</strong></div>
           <div class="mini-item"><span>用途</span><strong>FOMO / 過熱風險提示</strong></div>
         </div>
       </div>
@@ -553,7 +553,7 @@
     <div class="container">
       <h2 class="section-title">AI / 半導體 / 記憶體社群熱度排行榜</h2>
       <p class="section-sub">
-        排行榜涵蓋 Mega 7、AI、半導體與記憶體相關標的，依綜合熱度風險由高到低排序。
+        排行榜涵蓋主要 AI、半導體與記憶體相關標的，依綜合熱度風險由高到低排序。
       </p>
 
       <div class="panel">
@@ -573,7 +573,7 @@
     <div class="container">
       <h2 class="section-title">單股熱度分析</h2>
       <p class="section-sub">
-        可從排行榜點選股票，也可以直接輸入股票代號、公司名稱或中文名稱查詢。
+        可從排行榜點選股票，也可以直接輸入 Yahoo Finance 可查詢的股票代號、公司名稱或中文名稱。
       </p>
 
       <div class="panel">
@@ -581,14 +581,14 @@
           <input
             id="stockSearchInput"
             type="text"
-            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、台積電、NVDA"
+            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、2330、0050、NVDA、JPM、0700.HK"
             autocomplete="off"
           />
           <button type="submit">查詢</button>
         </form>
 
         <div class="hint">
-          支援 alias 查詢：例如 <strong>MU / 美光</strong>、<strong>TSM / 台積電 / 台GG</strong>、<strong>NVDA / 輝達</strong>。
+          支援代號查詢：例如 <strong>MU / 美光</strong>、<strong>TSM / 2330 / 台積電</strong>、<strong>NVDA / 輝達</strong>、<strong>0050</strong>、<strong>0700.HK</strong>。
         </div>
 
         <div id="detailPanel">
@@ -638,7 +638,7 @@
     function formatPeriodStatus(status) {
       if (status === "ongoing") return "進行中";
       if (status === "completed") return "已結束";
-      if (status === "none") return "近期無高熱度區間";
+      if (status === "none") return "近期無社群高熱度區間";
       return "N/A";
     }
 
@@ -652,7 +652,7 @@
       }
 
       if (start === end) {
-        return `${start}（單日高熱）`;
+        return `${start}（單日社群高熱）`;
       }
 
       return `${start} ～ ${end}`;
@@ -732,7 +732,7 @@
         };
       }
 
-      const start = Math.max(0, chart.length - 60);
+      const start = Math.max(0, chart.length - 90);
       return {
         data: chart.slice(start),
         offset: start
@@ -829,7 +829,7 @@
 
           band = `
             <rect x="${bandX1}" y="${P}" width="${bandWidth}" height="${H - P * 2}" fill="rgba(255,93,115,0.16)" rx="8" />
-            <text x="${bandX1 + 6}" y="${P + 14}" text-anchor="start">最近一次高熱度區間</text>
+            <text x="${bandX1 + 6}" y="${P + 14}" text-anchor="start">最近一次社群高熱度區間</text>
           `;
         }
       }
@@ -867,13 +867,13 @@
           </svg>
 
           <div class="legend">
-            <span class="lg-band">最近一次高熱度區間</span>
+            <span class="lg-band">社群高熱度區間</span>
             <span class="lg-heat">標準化社群熱度</span>
             <span class="lg-price">股價趨勢（標準化）</span>
           </div>
 
           <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            若存在高熱度區間，圖表會自動顯示該區間前後各 15 個交易日；若不存在，則顯示最近 60 個交易日。
+            社群熱度以近一年資料作為標準化基準；若存在社群高熱度區間，圖表會聚焦顯示該區間前後變化。
           </div>
         </div>
       `;
@@ -912,7 +912,7 @@
         document.getElementById("leaderboard").innerHTML = `
           <div class="error">
             無法載入 Replit API。<br>
-            可能原因：Replit 免費服務暫停、後端未啟動、或 CORS / 網路問題。<br>
+            可能原因：Replit 服務暫停、後端未啟動、或 CORS / 網路問題。<br>
             錯誤訊息：${err.message}
           </div>
         `;
@@ -1007,13 +1007,13 @@
           <div class="card">
             <div class="metric-label">目前狀態</div>
             <div class="metric-value" style="font-size:24px;">${data.current_status || "N/A"}</div>
-            <div class="metric-sub">是否處於高熱度區間</div>
+            <div class="metric-sub">是否處於社群高熱度區間</div>
           </div>
 
           <div class="card">
-            <div class="metric-label">高熱度區間</div>
+            <div class="metric-label">社群高熱度區間</div>
             <div class="metric-value" style="font-size:22px;">${periodRangeText}</div>
-            <div class="metric-sub">若目前不在高熱度區間，則顯示最近一次已結束區間</div>
+            <div class="metric-sub">若目前不在社群高熱度區間，則顯示最近一次已結束區間</div>
           </div>
 
           <div class="card">
@@ -1037,11 +1037,11 @@
               <div class="info-item"><span>PTT 熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
               <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${formatScore(socialIndex.reddit_contribution)}</strong></div>
               <div class="info-item"><span>社群討論趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
-              <div class="info-item"><span>高熱度區間</span><strong>${periodRangeText}</strong></div>
+              <div class="info-item"><span>社群高熱度區間</span><strong>${periodRangeText}</strong></div>
               <div class="info-item"><span>區間狀態</span><strong>${periodStatusText}</strong></div>
-              <div class="info-item"><span>高熱度區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
-              <div class="info-item"><span>高熱度區間平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
-              <div class="info-item"><span>高熱度區間融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
+              <div class="info-item"><span>社群高熱度區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
+              <div class="info-item"><span>社群高熱度區間平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
+              <div class="info-item"><span>社群高熱度區間融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
               <div class="info-item"><span>資料狀態</span><strong>${data.data_status || "N/A"}</strong></div>
             </div>
           </div>
