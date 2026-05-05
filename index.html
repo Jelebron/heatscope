@@ -242,9 +242,27 @@
       gap: 10px;
     }
 
+    .leader-head {
+      display: grid;
+      grid-template-columns: 52px 1fr 120px 90px 140px;
+      gap: 12px;
+      align-items: center;
+      padding: 0 14px 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .leader-head div:nth-child(3),
+    .leader-head div:nth-child(4),
+    .leader-head div:nth-child(5) {
+      text-align: right;
+    }
+
     .leader-row {
       display: grid;
-      grid-template-columns: 52px 1fr 90px 88px 110px;
+      grid-template-columns: 52px 1fr 120px 90px 140px;
       gap: 12px;
       align-items: center;
       padding: 14px;
@@ -311,10 +329,24 @@
       color: #ffc6ce;
     }
 
-    .status-text {
+    .trend-text {
       color: var(--muted);
       font-size: 13px;
       line-height: 1.35;
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .trend-up {
+      color: #ffe7a6;
+    }
+
+    .trend-down {
+      color: #cef7e1;
+    }
+
+    .trend-flat {
+      color: var(--muted);
     }
 
     .chart-wrap {
@@ -476,12 +508,16 @@
         grid-template-columns: 1fr;
       }
 
+      .leader-head {
+        display: none;
+      }
+
       .leader-row {
         grid-template-columns: 40px 1fr 72px;
       }
 
       .leader-row .badge,
-      .leader-row .status-text {
+      .leader-row .trend-text {
         display: none;
       }
     }
@@ -580,6 +616,12 @@
       if (level === "高") return "badge-high";
       if (level === "中") return "badge-mid";
       return "badge-low";
+    }
+
+    function trendClass(trend) {
+      if (trend === "升溫中") return "trend-up";
+      if (trend === "降溫中") return "trend-down";
+      return "trend-flat";
     }
 
     function formatPct(value) {
@@ -705,18 +747,37 @@
         return;
       }
 
-      box.innerHTML = items.map(item => `
-        <div class="leader-row ${item.canonical_ticker === currentTicker ? "active" : ""}" onclick="loadStock('${item.canonical_ticker}')">
-          <div class="rank">#${item.rank}</div>
-          <div class="ticker-name">
-            <strong>${item.canonical_ticker}</strong>
-            <span>${item.display_name}</span>
-          </div>
-          <div class="score">${Number(item.heat_score).toFixed(1)}</div>
-          <div><span class="badge ${badgeClass(item.heat_level)}">${item.heat_level}熱度</span></div>
-          <div class="status-text">${item.current_status}</div>
+      box.innerHTML = `
+        <div class="leader-head">
+          <div>排行</div>
+          <div>公司</div>
+          <div>綜合熱度風險</div>
+          <div>熱度等級</div>
+          <div>社群討論趨勢</div>
         </div>
-      `).join("");
+
+        ${items.map(item => {
+          const trend = item.social_index?.trend || "N/A";
+          return `
+            <div class="leader-row ${item.canonical_ticker === currentTicker ? "active" : ""}" onclick="loadStock('${item.canonical_ticker}')">
+              <div class="rank">#${item.rank}</div>
+
+              <div class="ticker-name">
+                <strong>${item.canonical_ticker}</strong>
+                <span>${item.display_name}</span>
+              </div>
+
+              <div class="score">${Number(item.heat_score).toFixed(1)}</div>
+
+              <div>
+                <span class="badge ${badgeClass(item.heat_level)}">${item.heat_level}熱度</span>
+              </div>
+
+              <div class="trend-text ${trendClass(trend)}">${trend}</div>
+            </div>
+          `;
+        }).join("")}
+      `;
     }
 
     function renderChart(chart) {
@@ -901,13 +962,6 @@
       const socialIndex = data.social_index || {};
       const scoreColor = getScoreColor(heat);
 
-      const latestRange = getLatestHighHeatRange(data.chart || [], 70);
-      const chartRangeText = latestRange
-        ? (latestRange.startDate === latestRange.endDate
-          ? `${latestRange.startDate}（單日高熱）`
-          : `${latestRange.startDate} ～ ${latestRange.endDate}`)
-        : "N/A";
-
       const periodRangeText = formatPeriodRange(market);
       const periodStatusText = formatPeriodStatus(market.period_status);
       const periodDurationText = data.high_heat_duration_days ? `${data.high_heat_duration_days} 天` : "0 天";
@@ -982,7 +1036,7 @@
               <div class="info-item"><span>社群熱度指數</span><strong>${formatScore(socialIndex.overall)}</strong></div>
               <div class="info-item"><span>PTT 熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
               <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${formatScore(socialIndex.reddit_contribution)}</strong></div>
-              <div class="info-item"><span>社群熱度趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
+              <div class="info-item"><span>社群討論趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
               <div class="info-item"><span>高熱度區間</span><strong>${periodRangeText}</strong></div>
               <div class="info-item"><span>區間狀態</span><strong>${periodStatusText}</strong></div>
               <div class="info-item"><span>高熱度區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
