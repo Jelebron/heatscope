@@ -543,7 +543,7 @@
           <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
           <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號 + 台股公司名稱</strong></div>
           <div class="mini-item"><span>核心指標</span><strong>近一年標準化社群熱度</strong></div>
-          <div class="mini-item"><span>區間定義</span><strong>5 日平均社群熱度 ≥ 70</strong></div>
+          <div class="mini-item"><span>區間定義</span><strong>5 日平均社群熱度 ≥ 60</strong></div>
           <div class="mini-item"><span>台股處理</span><strong>不採用 Reddit 加權</strong></div>
         </div>
       </div>
@@ -695,7 +695,7 @@
       return Number(point?.social_heat || 0);
     }
 
-    function getLatestHighHeatRange(chart, threshold = 70) {
+    function getLatestHighHeatRange(chart, threshold = 60) {
       if (!chart || !chart.length) return null;
 
       let start = null;
@@ -784,7 +784,7 @@
         return `<div class="loading">沒有可顯示的圖表資料。</div>`;
       }
 
-      const latestRange = getLatestHighHeatRange(chart, 70);
+      const latestRange = getLatestHighHeatRange(chart, 60);
       const windowed = getChartWindow(chart, latestRange);
       const recent = windowed.data;
       const offset = windowed.offset;
@@ -876,7 +876,7 @@
           </div>
 
           <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並以「5 日平均社群熱度 ≥ 70」標示社群高熱度區間。
+            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並以「5 日平均社群熱度 ≥ 60」標示社群高熱度區間。
           </div>
         </div>
       `;
