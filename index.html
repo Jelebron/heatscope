@@ -543,7 +543,7 @@
           <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
           <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號 + 台股公司名稱</strong></div>
           <div class="mini-item"><span>核心指標</span><strong>近一年標準化社群熱度</strong></div>
-          <div class="mini-item"><span>區間定義</span><strong>單日達標後 5 交易日有效</strong></div>
+          <div class="mini-item"><span>區間定義</span><strong>70 觸發，60 延長</strong></div>
           <div class="mini-item"><span>台股處理</span><strong>不採用 Reddit 加權</strong></div>
         </div>
       </div>
@@ -885,7 +885,7 @@
           </div>
 
           <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            社群熱度以近一年資料作為標準化基準；當單日社群熱度 ≥ 70 時，該訊號在接下來 5 個交易日內仍視為有效；若期間再次出現高熱度訊號，則區間會繼續延長。
+            社群熱度以近一年資料作為標準化基準；當單日社群熱度 ≥ 70 時，會觸發 5 個交易日的社群高熱度區間；若區間內社群熱度仍維持 ≥ 60，則有效期會繼續延長。
           </div>
         </div>
       `;
@@ -981,7 +981,7 @@
 
       const periodRangeText = formatPeriodRange(market);
       const periodStatusText = formatPeriodStatus(market.period_status);
-      const periodDurationText = data.high_heat_duration_days ? `${data.high_heat_duration_days} 天` : "0 天";
+      const periodDurationText = data.high_heat_duration_days ? `${data.high_heat_duration_days} 個交易日` : "0 個交易日";
 
       panel.innerHTML = `
         <div class="status-row">
@@ -1024,7 +1024,7 @@
           <div class="card">
             <div class="metric-label">目前狀態</div>
             <div class="metric-value" style="font-size:24px;">${data.current_status || "N/A"}</div>
-            <div class="metric-sub">以社群高熱度訊號的 5 交易日有效期判斷</div>
+            <div class="metric-sub">以 70 觸發、60 延長的社群高熱度訊號判斷</div>
           </div>
 
           <div class="card">
@@ -1056,9 +1056,12 @@
               <div class="info-item"><span>社群討論趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
               <div class="info-item"><span>社群高熱度區間</span><strong>${periodRangeText}</strong></div>
               <div class="info-item"><span>區間狀態</span><strong>${periodStatusText}</strong></div>
-              <div class="info-item"><span>社群高熱度區間累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
-              <div class="info-item"><span>社群高熱度區間平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
-              <div class="info-item"><span>社群高熱度區間融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
+              ${market.analysis_start && market.analysis_end ? `
+                <div class="info-item"><span>市場反應計算區間</span><strong>${market.analysis_start} ～ ${market.analysis_end}</strong></div>
+              ` : ""}
+              <div class="info-item"><span>區間市場累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
+              <div class="info-item"><span>區間平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
+              <div class="info-item"><span>區間融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
               <div class="info-item"><span>資料狀態</span><strong>${data.data_status || "N/A"}</strong></div>
             </div>
           </div>
