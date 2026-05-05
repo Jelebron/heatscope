@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HeatScope｜社群熱度股票風險提示</title>
+
   <style>
     :root {
       --bg: #0b1020;
@@ -152,6 +153,53 @@
       color: var(--muted);
       border: 1px solid var(--line);
       font-size: 14px;
+    }
+
+    .search-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+    }
+
+    .search-box input::placeholder {
+      color: rgba(183,192,224,0.75);
+    }
+
+    .search-box button {
+      padding: 14px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(110,168,254,0.45);
+      background: rgba(110,168,254,0.18);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .search-box button:hover {
+      background: rgba(110,168,254,0.28);
+    }
+
+    .hint {
+      margin-top: -8px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
     }
 
     .grid-2 {
@@ -424,6 +472,10 @@
         grid-template-columns: 1fr;
       }
 
+      .search-box {
+        grid-template-columns: 1fr;
+      }
+
       .leader-row {
         grid-template-columns: 40px 1fr 72px;
       }
@@ -485,11 +537,27 @@
     <div class="container">
       <h2 class="section-title">單股熱度分析</h2>
       <p class="section-sub">
-        點選排行榜中的股票後，下方會顯示該股票的標準化社群熱度、價格走勢與最近一次高熱度區間。
+        可從排行榜點選股票，也可以直接輸入股票代號、公司名稱或中文名稱查詢。
       </p>
 
-      <div id="detailPanel" class="panel">
-        <div class="loading">請先從排行榜選擇一檔股票。</div>
+      <div class="panel">
+        <form class="search-box" id="stockSearchForm">
+          <input
+            id="stockSearchInput"
+            type="text"
+            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、台積電、NVDA"
+            autocomplete="off"
+          />
+          <button type="submit">查詢</button>
+        </form>
+
+        <div class="hint">
+          支援 alias 查詢：例如 <strong>MU / 美光</strong>、<strong>TSM / 台積電 / 台GG</strong>、<strong>NVDA / 輝達</strong>。
+        </div>
+
+        <div id="detailPanel">
+          <div class="loading">請先從排行榜選擇一檔股票，或使用上方搜尋框查詢。</div>
+        </div>
       </div>
     </div>
   </section>
@@ -777,27 +845,34 @@
       }
     }
 
-    async function loadStock(ticker) {
-      currentTicker = ticker;
-      renderLeaderboard(leaderboardData);
+    async function loadStock(query) {
+      const cleanQuery = String(query || "").trim();
+
+      if (!cleanQuery) {
+        return;
+      }
 
       const panel = document.getElementById("detailPanel");
-      panel.innerHTML = `<div class="loading">載入 ${ticker} 詳細資料中...</div>`;
+      panel.innerHTML = `<div class="loading">載入 ${cleanQuery} 詳細資料中...</div>`;
 
       try {
-        const res = await fetch(`${API_BASE}/api/stock/${ticker}`);
+        const res = await fetch(`${API_BASE}/api/stock/${encodeURIComponent(cleanQuery)}`);
 
         if (!res.ok) {
           throw new Error(`API 回應錯誤：${res.status}`);
         }
 
         const data = await res.json();
+        currentTicker = data.canonical_ticker || cleanQuery.toUpperCase();
+
+        renderLeaderboard(leaderboardData);
         renderStockDetail(data);
 
       } catch (err) {
         panel.innerHTML = `
           <div class="error">
-            無法載入 ${ticker} 詳細資料。<br>
+            無法載入 ${cleanQuery} 詳細資料。<br>
+            可能原因：標的不存在、後端暫停、或資料來源暫時失敗。<br>
             錯誤訊息：${err.message}
           </div>
         `;
@@ -898,6 +973,14 @@
         </div>
       `;
     }
+
+    document.getElementById("stockSearchForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const query = document.getElementById("stockSearchInput").value.trim();
+      if (query) {
+        loadStock(query);
+      }
+    });
 
     loadLeaderboard();
   </script>
