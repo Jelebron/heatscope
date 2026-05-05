@@ -581,14 +581,14 @@
           <input
             id="stockSearchInput"
             type="text"
-            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、2330、0050、NVDA、JPM、0700.HK"
+            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、2330、2308、0050、NVDA、JPM、0700.HK"
             autocomplete="off"
           />
           <button type="submit">查詢</button>
         </form>
 
         <div class="hint">
-          支援代號查詢：例如 <strong>MU / 美光</strong>、<strong>TSM / 2330 / 台積電</strong>、<strong>NVDA / 輝達</strong>、<strong>0050</strong>、<strong>0700.HK</strong>。
+          支援代號查詢：例如 <strong>MU / 美光</strong>、<strong>TSM / 2330 / 台積電</strong>、<strong>2308 / 台達電</strong>、<strong>NVDA / 輝達</strong>、<strong>0050</strong>、<strong>0700.HK</strong>。
         </div>
 
         <div id="detailPanel">
@@ -722,20 +722,9 @@
     function getChartWindow(chart, latestRange) {
       if (!chart || !chart.length) return { data: [], offset: 0 };
 
-      if (latestRange) {
-        const buffer = 15;
-        const start = Math.max(0, latestRange.startIdx - buffer);
-        const end = Math.min(chart.length, latestRange.endIdx + buffer + 1);
-        return {
-          data: chart.slice(start, end),
-          offset: start
-        };
-      }
-
-      const start = Math.max(0, chart.length - 90);
       return {
-        data: chart.slice(start),
-        offset: start
+        data: chart,
+        offset: 0
       };
     }
 
@@ -835,7 +824,9 @@
       }
 
       const firstDate = recent[0]?.date || "";
-      const midDate = recent[Math.floor((recent.length - 1) / 2)]?.date || "";
+      const q1Date = recent[Math.floor((recent.length - 1) * 0.25)]?.date || "";
+      const midDate = recent[Math.floor((recent.length - 1) * 0.50)]?.date || "";
+      const q3Date = recent[Math.floor((recent.length - 1) * 0.75)]?.date || "";
       const lastDate = recent[recent.length - 1]?.date || "";
 
       return `
@@ -851,7 +842,9 @@
             <path d="${toPath(priceNorm)}" fill="none" stroke="#6ea8fe" stroke-width="3" stroke-linecap="round" />
 
             <text x="${P}" y="${H - 14}" text-anchor="start">${firstDate}</text>
+            <text x="${P + (W - P * 2) * 0.25}" y="${H - 14}" text-anchor="middle">${q1Date}</text>
             <text x="${W / 2}" y="${H - 14}" text-anchor="middle">${midDate}</text>
+            <text x="${P + (W - P * 2) * 0.75}" y="${H - 14}" text-anchor="middle">${q3Date}</text>
             <text x="${W - P}" y="${H - 14}" text-anchor="end">${lastDate}</text>
 
             <text x="${W / 2}" y="${H - 2}" text-anchor="middle">日期</text>
@@ -873,7 +866,7 @@
           </div>
 
           <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            社群熱度以近一年資料作為標準化基準；若存在社群高熱度區間，圖表會聚焦顯示該區間前後變化。
+            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並標示最近一次社群高熱度區間。
           </div>
         </div>
       `;
@@ -960,6 +953,11 @@
       const level = data.heat_level || "低";
       const market = data.market_summary || {};
       const socialIndex = data.social_index || {};
+      const rawFlags = data.raw_flags || {};
+      const isTaiwanStock = rawFlags.market_type === "taiwan";
+      const redditContributionText = isTaiwanStock
+        ? "台股不採用"
+        : formatScore(socialIndex.reddit_contribution);
       const scoreColor = getScoreColor(heat);
 
       const periodRangeText = formatPeriodRange(market);
@@ -1035,7 +1033,7 @@
             <div class="info-list">
               <div class="info-item"><span>社群熱度指數</span><strong>${formatScore(socialIndex.overall)}</strong></div>
               <div class="info-item"><span>PTT 熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
-              <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${formatScore(socialIndex.reddit_contribution)}</strong></div>
+              <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${redditContributionText}</strong></div>
               <div class="info-item"><span>社群討論趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
               <div class="info-item"><span>社群高熱度區間</span><strong>${periodRangeText}</strong></div>
               <div class="info-item"><span>區間狀態</span><strong>${periodStatusText}</strong></div>
