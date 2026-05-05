@@ -541,9 +541,10 @@
         <h3>目前版本</h3>
         <div class="mini-list">
           <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
-          <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號</strong></div>
+          <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號 + 台股公司名稱</strong></div>
           <div class="mini-item"><span>核心指標</span><strong>近一年標準化社群熱度</strong></div>
-          <div class="mini-item"><span>用途</span><strong>FOMO / 過熱風險提示</strong></div>
+          <div class="mini-item"><span>區間定義</span><strong>5 日平均社群熱度 ≥ 70</strong></div>
+          <div class="mini-item"><span>台股處理</span><strong>不採用 Reddit 加權</strong></div>
         </div>
       </div>
     </div>
@@ -581,14 +582,15 @@
           <input
             id="stockSearchInput"
             type="text"
-            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、2330、2308、0050、NVDA、JPM、0700.HK"
+            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、2330、2308、台達電、宜鼎、信驊、NVDA"
             autocomplete="off"
           />
           <button type="submit">查詢</button>
         </form>
 
         <div class="hint">
-          支援代號查詢：例如 <strong>MU / 美光</strong>、<strong>TSM / 2330 / 台積電</strong>、<strong>2308 / 台達電</strong>、<strong>NVDA / 輝達</strong>、<strong>0050</strong>、<strong>0700.HK</strong>。
+          支援查詢：<strong>美股 ticker</strong>、<strong>台股數字代號</strong>、<strong>台股中文名稱</strong>、<strong>Yahoo ticker</strong>。
+          例如 <strong>MU / 美光</strong>、<strong>2330 / 台積電</strong>、<strong>2308 / 台達電</strong>、<strong>5289 / 宜鼎</strong>、<strong>5274 / 信驊</strong>。
         </div>
 
         <div id="detailPanel">
@@ -685,6 +687,14 @@
       }
     }
 
+    function getHighHeatValue(point) {
+      const ma = point?.social_heat_5d_ma;
+      if (ma !== null && ma !== undefined && !Number.isNaN(Number(ma))) {
+        return Number(ma);
+      }
+      return Number(point?.social_heat || 0);
+    }
+
     function getLatestHighHeatRange(chart, threshold = 70) {
       if (!chart || !chart.length) return null;
 
@@ -692,8 +702,8 @@
       let latest = null;
 
       for (let i = 0; i < chart.length; i++) {
-        const heat = Number(chart[i]?.social_heat || 0);
-        const isHigh = heat >= threshold;
+        const heatMa = getHighHeatValue(chart[i]);
+        const isHigh = heatMa >= threshold;
 
         if (isHigh && start === null) {
           start = i;
@@ -866,7 +876,7 @@
           </div>
 
           <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並標示最近一次社群高熱度區間。
+            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並以「5 日平均社群熱度 ≥ 70」標示社群高熱度區間。
           </div>
         </div>
       `;
@@ -1005,7 +1015,7 @@
           <div class="card">
             <div class="metric-label">目前狀態</div>
             <div class="metric-value" style="font-size:24px;">${data.current_status || "N/A"}</div>
-            <div class="metric-sub">是否處於社群高熱度區間</div>
+            <div class="metric-sub">以 5 日平均社群熱度判斷是否處於社群高熱度區間</div>
           </div>
 
           <div class="card">
@@ -1032,8 +1042,8 @@
 
             <div class="info-list">
               <div class="info-item"><span>社群熱度指數</span><strong>${formatScore(socialIndex.overall)}</strong></div>
-              <div class="info-item"><span>PTT 熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
-              <div class="info-item"><span>Reddit 熱度貢獻</span><strong>${redditContributionText}</strong></div>
+              <div class="info-item"><span>PTT 近 14 日熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
+              <div class="info-item"><span>Reddit 近 14 日熱度貢獻</span><strong>${redditContributionText}</strong></div>
               <div class="info-item"><span>社群討論趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
               <div class="info-item"><span>社群高熱度區間</span><strong>${periodRangeText}</strong></div>
               <div class="info-item"><span>區間狀態</span><strong>${periodStatusText}</strong></div>
