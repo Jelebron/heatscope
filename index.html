@@ -543,7 +543,7 @@
           <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
           <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號 + 台股公司名稱</strong></div>
           <div class="mini-item"><span>核心指標</span><strong>近一年標準化社群熱度</strong></div>
-          <div class="mini-item"><span>區間定義</span><strong>5 日平均社群熱度 ≥ 60</strong></div>
+          <div class="mini-item"><span>區間定義</span><strong>近 5 日內曾達 70</strong></div>
           <div class="mini-item"><span>台股處理</span><strong>不採用 Reddit 加權</strong></div>
         </div>
       </div>
@@ -688,22 +688,28 @@
     }
 
     function getHighHeatValue(point) {
-      const ma = point?.social_heat_5d_ma;
-      if (ma !== null && ma !== undefined && !Number.isNaN(Number(ma))) {
-        return Number(ma);
+      const max5 = point?.social_heat_5d_max;
+      if (max5 !== null && max5 !== undefined && !Number.isNaN(Number(max5))) {
+        return Number(max5);
       }
-      return Number(point?.social_heat || 0);
+
+      const heat = point?.social_heat;
+      if (heat !== null && heat !== undefined && !Number.isNaN(Number(heat))) {
+        return Number(heat);
+      }
+
+      return 0;
     }
 
-    function getLatestHighHeatRange(chart, threshold = 60) {
+    function getLatestHighHeatRange(chart, threshold = 70) {
       if (!chart || !chart.length) return null;
 
       let start = null;
       let latest = null;
 
       for (let i = 0; i < chart.length; i++) {
-        const heatMa = getHighHeatValue(chart[i]);
-        const isHigh = heatMa >= threshold;
+        const heatSignal = getHighHeatValue(chart[i]);
+        const isHigh = heatSignal >= threshold;
 
         if (isHigh && start === null) {
           start = i;
@@ -784,7 +790,7 @@
         return `<div class="loading">沒有可顯示的圖表資料。</div>`;
       }
 
-      const latestRange = getLatestHighHeatRange(chart, 60);
+      const latestRange = getLatestHighHeatRange(chart, 70);
       const windowed = getChartWindow(chart, latestRange);
       const recent = windowed.data;
       const offset = windowed.offset;
@@ -876,7 +882,7 @@
           </div>
 
           <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並以「5 日平均社群熱度 ≥ 60」標示社群高熱度區間。
+            社群熱度以近一年資料作為標準化基準；圖表顯示近一年走勢，並以「近 5 個交易日內曾有一天社群熱度 ≥ 70」標示社群高熱度區間。
           </div>
         </div>
       `;
@@ -1015,7 +1021,7 @@
           <div class="card">
             <div class="metric-label">目前狀態</div>
             <div class="metric-value" style="font-size:24px;">${data.current_status || "N/A"}</div>
-            <div class="metric-sub">以 5 日平均社群熱度判斷是否處於社群高熱度區間</div>
+            <div class="metric-sub">以近 5 個交易日內是否曾達高熱度判斷</div>
           </div>
 
           <div class="card">
