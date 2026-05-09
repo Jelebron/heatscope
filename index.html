@@ -3,22 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HeatScope｜社群熱度股票風險提示</title>
-
+  <title>HeatScope｜社群熱度股票風險儀表板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #121933;
-      --panel-2: #182247;
-      --text: #eef2ff;
-      --muted: #b7c0e0;
-      --line: rgba(255,255,255,0.1);
-      --blue: #6ea8fe;
-      --orange: #ff9f43;
-      --green: #35d07f;
-      --yellow: #f6d85b;
-      --red: #ff5d73;
-      --band: rgba(255, 93, 115, 0.16);
+      --bg: #0b1024;
+      --panel: #111936;
+      --panel-2: #1a2448;
+      --border: rgba(255,255,255,0.10);
+      --text: #f5f7ff;
+      --muted: #aebcf7;
+      --muted-2: #7d8bc9;
+      --blue: #73a8ff;
+      --green: #51d88a;
+      --yellow: #ffd45a;
+      --orange: #ff9d4d;
+      --red: #ff6b7a;
+      --purple: #b087ff;
+      --shadow: 0 20px 60px rgba(0,0,0,0.35);
+      --radius: 22px;
     }
 
     * {
@@ -27,1057 +30,927 @@
 
     body {
       margin: 0;
-      font-family: Inter, "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(180deg, #0b1020 0%, #101735 100%);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(72, 107, 255, 0.25), transparent 35%),
+        radial-gradient(circle at 90% 10%, rgba(255, 107, 122, 0.12), transparent 30%),
+        var(--bg);
       color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      line-height: 1.6;
     }
 
-    .container {
-      width: min(1180px, calc(100% - 32px));
+    .wrap {
+      max-width: 1180px;
       margin: 0 auto;
+      padding: 36px 22px 80px;
     }
 
-    .hero {
-      padding: 56px 0 26px;
+    header {
+      margin-bottom: 26px;
     }
 
-    .hero-card,
-    .panel,
-    .card {
-      background: rgba(18, 25, 51, 0.92);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-    }
-
-    .hero-card {
-      padding: 32px;
-      display: grid;
-      grid-template-columns: 1.3fr 0.8fr;
-      gap: 28px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(110,168,254,0.12);
-      border: 1px solid rgba(110,168,254,0.25);
-      color: #d9e6ff;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    h1 {
-      margin: 18px 0 12px;
-      font-size: clamp(34px, 5vw, 58px);
-      line-height: 1.05;
-      letter-spacing: -0.04em;
-    }
-
-    .hero p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 18px;
-      max-width: 760px;
-    }
-
-    .quick-box {
-      background: linear-gradient(180deg, rgba(24,34,71,0.95), rgba(16,23,53,0.95));
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 20px;
-    }
-
-    .quick-box h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-    }
-
-    .mini-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .mini-item {
+    .brand {
       display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.05);
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .mini-item strong {
-      color: var(--text);
-      text-align: right;
-    }
-
-    section {
-      padding: 18px 0;
-    }
-
-    .section-title {
-      font-size: 28px;
-      font-weight: 850;
-      margin: 0 0 8px;
-    }
-
-    .section-sub {
-      margin: 0 0 20px;
-      color: var(--muted);
-      line-height: 1.7;
-    }
-
-    .panel {
-      padding: 20px;
-    }
-
-    .status-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
       align-items: center;
+      justify-content: space-between;
+      gap: 20px;
       margin-bottom: 18px;
-      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), var(--yellow), var(--red));
+      box-shadow: 0 0 24px rgba(255, 212, 90, 0.6);
     }
 
     .status-pill {
       display: inline-flex;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.07);
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
       color: var(--muted);
-      border: 1px solid var(--line);
+      padding: 9px 14px;
+      border-radius: 999px;
       font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .status-light {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 14px var(--green);
+    }
+
+    .hero {
+      background: rgba(17, 25, 54, 0.78);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.05;
+      margin: 0 0 14px;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+      margin: 0;
+      max-width: 840px;
     }
 
     .search-box {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 12px;
-      margin-bottom: 18px;
-      align-items: center;
+      margin-top: 28px;
     }
 
-    .search-box input {
+    input {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.06);
+      background: #1a2448;
       color: var(--text);
-      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px 20px;
+      font-size: 20px;
+      font-weight: 800;
       outline: none;
     }
 
-    .search-box input::placeholder {
-      color: rgba(183,192,224,0.75);
+    input:focus {
+      border-color: rgba(115, 168, 255, 0.85);
+      box-shadow: 0 0 0 4px rgba(115, 168, 255, 0.15);
     }
 
-    .search-box button {
-      padding: 14px 18px;
-      border-radius: 16px;
-      border: 1px solid rgba(110,168,254,0.45);
-      background: rgba(110,168,254,0.18);
-      color: var(--text);
-      font-size: 15px;
-      font-weight: 800;
+    button {
+      border: 0;
+      background: linear-gradient(135deg, #2f63ff, #73a8ff);
+      color: white;
+      font-weight: 900;
+      font-size: 18px;
+      padding: 0 28px;
+      border-radius: 18px;
       cursor: pointer;
-      transition: 0.18s ease;
+      transition: transform 0.15s ease, opacity 0.15s ease;
     }
 
-    .search-box button:hover {
-      background: rgba(110,168,254,0.28);
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     .hint {
-      margin-top: -8px;
-      margin-bottom: 18px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 16px;
-    }
-
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    .card {
-      padding: 20px;
-    }
-
-    .metric-label {
       color: var(--muted);
       font-size: 14px;
-    }
-
-    .metric-value {
-      margin-top: 8px;
-      font-size: 30px;
-      line-height: 1.1;
-      font-weight: 850;
-    }
-
-    .metric-sub {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .leaderboard {
-      display: grid;
-      gap: 10px;
-    }
-
-    .leader-head {
-      display: grid;
-      grid-template-columns: 52px 1fr 120px 90px 140px;
-      gap: 12px;
-      align-items: center;
-      padding: 0 14px 10px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-    }
-
-    .leader-head div:nth-child(3),
-    .leader-head div:nth-child(4),
-    .leader-head div:nth-child(5) {
-      text-align: right;
-    }
-
-    .leader-row {
-      display: grid;
-      grid-template-columns: 52px 1fr 120px 90px 140px;
-      gap: 12px;
-      align-items: center;
-      padding: 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.045);
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: 0.18s ease;
-    }
-
-    .leader-row:hover,
-    .leader-row.active {
-      border-color: rgba(110,168,254,0.45);
-      background: rgba(110,168,254,0.11);
-    }
-
-    .rank {
-      font-size: 18px;
-      font-weight: 850;
-      color: #dce6ff;
-    }
-
-    .ticker-name strong {
-      display: block;
-      font-size: 16px;
-    }
-
-    .ticker-name span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 3px;
-    }
-
-    .score {
-      font-size: 22px;
-      font-weight: 850;
-      text-align: right;
-    }
-
-    .badge {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .badge-low {
-      background: rgba(53,208,127,0.14);
-      color: #cef7e1;
-    }
-
-    .badge-mid {
-      background: rgba(246,216,91,0.16);
-      color: #ffe7a6;
-    }
-
-    .badge-high {
-      background: rgba(255,93,115,0.16);
-      color: #ffc6ce;
-    }
-
-    .trend-text {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-      text-align: right;
+      margin-top: 12px;
       font-weight: 700;
     }
 
-    .trend-up {
-      color: #ffe7a6;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-top: 24px;
     }
 
-    .trend-down {
-      color: #cef7e1;
+    .card {
+      background: rgba(17, 25, 54, 0.86);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.22);
     }
 
-    .trend-flat {
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 950;
+      margin: 0 0 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .small-title {
       color: var(--muted);
+      font-weight: 900;
+      font-size: 15px;
+      margin-bottom: 8px;
     }
 
-    .chart-wrap {
-      background: rgba(255,255,255,0.035);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      overflow: hidden;
+    .big-number {
+      font-size: 36px;
+      font-weight: 1000;
+      letter-spacing: -0.04em;
+      line-height: 1;
     }
 
-    svg text {
-      fill: #c9d3f4;
-      font-size: 11px;
-    }
-
-    .legend {
-      display: flex;
-      gap: 14px;
-      font-size: 13px;
+    .subtext {
       color: var(--muted);
+      font-size: 14px;
       margin-top: 8px;
-      flex-wrap: wrap;
     }
 
-    .legend span::before {
-      content: "";
-      display: inline-block;
-      width: 10px;
-      height: 10px;
+    .risk-badge {
+      display: inline-flex;
+      padding: 6px 13px;
       border-radius: 999px;
-      margin-right: 8px;
-      vertical-align: middle;
+      font-weight: 950;
+      font-size: 13px;
     }
 
-    .lg-heat::before {
-      background: var(--orange);
+    .risk-high {
+      color: #ffdce2;
+      background: rgba(255,107,122,0.22);
     }
 
-    .lg-price::before {
-      background: var(--blue);
+    .risk-mid {
+      color: #fff2bd;
+      background: rgba(255,212,90,0.18);
     }
 
-    .lg-band::before {
-      background: rgba(255, 93, 115, 0.45);
+    .risk-low {
+      color: #c7ffde;
+      background: rgba(81,216,138,0.16);
     }
 
-    .score-bar-wrap {
-      margin-top: 16px;
-    }
-
-    .score-gradient-bar {
+    .score-bar {
       position: relative;
       height: 16px;
       border-radius: 999px;
-      background: linear-gradient(
-        90deg,
-        #35d07f 0%,
-        #f6d85b 50%,
-        #ff5d73 100%
-      );
-      overflow: visible;
-      margin-top: 14px;
+      background: linear-gradient(90deg, var(--green), var(--yellow), var(--red));
+      margin: 18px 0 14px;
     }
 
-    .score-marker {
+    .score-knob {
       position: absolute;
       top: 50%;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      border: 3px solid #ffffff;
-      background: currentColor;
+      background: white;
+      border: 4px solid rgba(255,255,255,0.4);
       transform: translate(-50%, -50%);
-      box-shadow: 0 0 0 4px rgba(255,255,255,0.12);
-    }
-
-    .score-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 13px;
+      box-shadow: 0 0 16px rgba(255,255,255,0.5);
     }
 
     .score-scale {
-      margin-top: 10px;
       display: flex;
       justify-content: space-between;
-      gap: 8px;
-      font-size: 12px;
       color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
     }
 
-    .score-scale span {
-      flex: 1;
-      text-align: center;
-      padding: 4px 6px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.04);
+    .result-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 26px;
     }
 
-    .info-list {
+    .stock-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 1000;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    .stock-subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+
+    .metric-list {
       display: grid;
       gap: 10px;
-      margin-top: 14px;
     }
 
-    .info-item {
+    .metric-row {
       display: flex;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
       align-items: center;
-      padding: 12px 14px;
-      border-radius: 14px;
       background: rgba(255,255,255,0.045);
+      border-radius: 14px;
+      padding: 12px 14px;
     }
 
-    .info-item span {
+    .metric-row span:first-child {
       color: var(--muted);
+      font-weight: 800;
+    }
+
+    .metric-row span:last-child {
+      font-weight: 950;
+      text-align: right;
+    }
+
+    .chart-wrap {
+      height: 360px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .leaderboard {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 18px;
+    }
+
+    .leaderboard th,
+    .leaderboard td {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: left;
+      vertical-align: middle;
       font-size: 14px;
     }
 
-    .info-item strong {
-      text-align: right;
+    .leaderboard th {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    .leaderboard tr {
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .leaderboard tbody tr:hover {
+      background: rgba(115, 168, 255, 0.10);
+    }
+
+    .rank {
+      color: var(--muted);
+      font-weight: 950;
+      width: 44px;
+    }
+
+    .ticker {
+      font-weight: 1000;
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .info-block {
+      background: rgba(255,255,255,0.045);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .info-block strong {
+      display: block;
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .info-block span {
+      color: var(--muted);
+      font-size: 14px;
     }
 
     .loading {
       color: var(--muted);
-      padding: 18px;
-      border: 1px dashed var(--line);
-      border-radius: 18px;
+      font-weight: 900;
+      padding: 22px;
     }
 
     .error {
-      color: #ffc6ce;
-      background: rgba(255,93,115,0.1);
-      border: 1px solid rgba(255,93,115,0.28);
-      padding: 14px;
+      color: #ffd6dc;
+      background: rgba(255, 107, 122, 0.12);
+      border: 1px solid rgba(255, 107, 122, 0.35);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 18px;
+      font-weight: 850;
+    }
+
+    .version-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .version-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(255,255,255,0.045);
       border-radius: 16px;
-      line-height: 1.6;
+      padding: 13px 16px;
+      font-weight: 900;
     }
 
-    footer {
-      text-align: center;
+    .version-row span:first-child {
       color: var(--muted);
-      padding: 32px 0 60px;
-      font-size: 14px;
     }
 
-    @media (max-width: 980px) {
-      .hero-card,
-      .grid-2,
-      .grid-4 {
-        grid-template-columns: 1fr;
+    .version-row span:last-child {
+      text-align: right;
+    }
+
+    .footer-note {
+      color: var(--muted-2);
+      font-size: 13px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .span-3,
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8,
+      .span-12 {
+        grid-column: span 12;
       }
 
       .search-box {
         grid-template-columns: 1fr;
       }
 
-      .leader-head {
-        display: none;
+      button {
+        height: 56px;
       }
 
-      .leader-row {
-        grid-template-columns: 40px 1fr 72px;
+      .result-head {
+        flex-direction: column;
       }
 
-      .leader-row .badge,
-      .leader-row .trend-text {
-        display: none;
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-wrap {
+        height: 320px;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="container hero">
-    <div class="hero-card">
-      <div>
-        <div class="eyebrow">🔥 HeatScope Live MVP</div>
-        <h1>用社群熱度判斷熱門股，是剛升溫，還是已經過熱。</h1>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">
+          <span class="logo-dot"></span>
+          <span>HeatScope</span>
+        </div>
+        <div class="status-pill">
+          <span class="status-light"></span>
+          <span>正式 API 已部署</span>
+        </div>
+      </div>
+
+      <section class="hero">
+        <h1>社群熱度股票風險儀表板</h1>
         <p>
-          HeatScope 會整合 Yahoo Finance、PTT 與 Reddit 的公開資料，
-          將社群討論量轉換成標準化熱度指標，並搭配股價、成交量與社群高熱度區間，
-          協助使用者理解 FOMO 風險與市場情緒。
+          HeatScope 追蹤觀察池股票的社群討論熱度、股價動能與成交量異常，
+          以歷史回測選出的 confirmation-heavy 權重辨識可能的追高與回撤風險。
         </p>
-      </div>
 
-      <div class="quick-box">
-        <h3>目前版本</h3>
-        <div class="mini-list">
-          <div class="mini-item"><span>資料來源</span><strong>Yahoo Finance + PTT + Reddit</strong></div>
-          <div class="mini-item"><span>分析範圍</span><strong>觀察池 + Yahoo 可查代號 + 台股公司名稱</strong></div>
-          <div class="mini-item"><span>核心指標</span><strong>近一年標準化社群熱度</strong></div>
-          <div class="mini-item"><span>區間定義</span><strong>70 觸發，60 延長</strong></div>
-          <div class="mini-item"><span>台股處理</span><strong>不採用 Reddit 加權</strong></div>
+        <div class="search-box">
+          <input id="searchInput" placeholder="輸入股票代號或名稱，例如 2454、聯發科、2308、MU、NVDA" />
+          <button id="searchBtn">查詢</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <section>
-    <div class="container">
-      <h2 class="section-title">全部股票熱度風險分數排行前 20</h2>
-      <p class="section-sub">
-        本排行整合社群熱度、價格變動與成交量資訊，依綜合熱度風險分數由高到低排序，呈現目前熱度風險最高的前 20 檔股票。
-      </p>
-
-      <div class="panel">
-        <div class="status-row">
-          <div class="status-pill" id="apiStatus">正在連接 HeatScope API...</div>
-          <div class="status-pill" id="updatedAt">尚未更新</div>
-        </div>
-
-        <div id="leaderboard" class="leaderboard">
-          <div class="loading">載入社群熱度排行榜中...</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="container">
-      <h2 class="section-title">單股熱度分析</h2>
-      <p class="section-sub">
-        可從排行榜點選股票，也可以直接輸入 Yahoo Finance 可查詢的股票代號、公司名稱或中文名稱。
-      </p>
-
-      <div class="panel">
-        <form class="search-box" id="stockSearchForm">
-          <input
-            id="stockSearchInput"
-            type="text"
-            placeholder="輸入股票代號或名稱，例如 MU、美光、TSM、2330、2308、台達電、宜鼎、信驊、NVDA"
-            autocomplete="off"
-          />
-          <button type="submit">查詢</button>
-        </form>
 
         <div class="hint">
-          支援查詢：<strong>美股 ticker</strong>、<strong>台股數字代號</strong>、<strong>台股中文名稱</strong>、<strong>Yahoo ticker</strong>。
-          例如 <strong>MU / 美光</strong>、<strong>2330 / 台積電</strong>、<strong>2308 / 台達電</strong>、<strong>5289 / 宜鼎</strong>、<strong>5274 / 信驊</strong>。
+          支援：美股 ticker、台股數字代號、台股中文名稱。台股不採用 Reddit 加權。
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section id="resultArea"></section>
+
+      <section class="grid">
+        <div class="card span-7">
+          <h2 class="section-title">目前觀察池熱度風險排行前 20</h2>
+          <div class="subtext">
+            依目前後端追蹤並可計算熱度風險分數的股票池排序，不代表全市場所有股票。
+          </div>
+          <div id="leaderboardArea" class="loading">載入排行榜中...</div>
         </div>
 
-        <div id="detailPanel">
-          <div class="loading">請先從排行榜選擇一檔股票，或使用上方搜尋框查詢。</div>
-        </div>
-      </div>
-    </div>
-  </section>
+        <div class="card span-5">
+          <h2 class="section-title">目前版本</h2>
+          <div class="version-grid">
+            <div class="version-row">
+              <span>資料來源</span>
+              <span>Yahoo Finance + PTT + Reddit</span>
+            </div>
+            <div class="version-row">
+              <span>分析範圍</span>
+              <span>目前觀察池 + 可查詢個股</span>
+            </div>
+            <div class="version-row">
+              <span>核心指標</span>
+              <span>近一年社群熱度 Z-score</span>
+            </div>
+            <div class="version-row">
+              <span>區間定義</span>
+              <span>Z ≥ 2 觸發，Z ≥ 1 延長</span>
+            </div>
+            <div class="version-row">
+              <span>權重版本</span>
+              <span>confirmation_heavy_v1</span>
+            </div>
+            <div class="version-row">
+              <span>回測依據</span>
+              <span>6,069 筆歷史交易日樣本</span>
+            </div>
+            <div class="version-row">
+              <span>台股處理</span>
+              <span>不採用 Reddit 加權</span>
+            </div>
+          </div>
 
-  <footer>
-    HeatScope MVP · Social Heat × Market Reaction · Not investment advice
-  </footer>
+          <div class="footer-note">
+            高分代表社群與市場訊號進入較高熱度風險，不是買進建議。
+            歷史回測主要驗證未來 20 個交易日內的回撤風險。
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
-    const API_BASE = "https://a236eae4-dfc1-404b-bc56-746ccf748191-00-3t5sqb15djwtq.pike.replit.dev/heatscope-api";
+    const API_BASE = "https://heatscope-backend.replit.app/heatscope-api";
 
-    let leaderboardData = [];
-    let currentTicker = null;
+    let chartInstance = null;
 
-    function clamp(v, min, max) {
-      return Math.max(min, Math.min(max, v));
+    const $ = (id) => document.getElementById(id);
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
     }
 
-    function badgeClass(level) {
-      if (level === "高") return "badge-high";
-      if (level === "中") return "badge-mid";
-      return "badge-low";
+    function fmt(value, suffix = "") {
+      if (value === null || value === undefined || Number.isNaN(value)) return "N/A";
+      if (typeof value === "number") return `${value.toFixed(1)}${suffix}`;
+      return `${value}${suffix}`;
     }
 
-    function trendClass(trend) {
-      if (trend === "升溫中") return "trend-up";
-      if (trend === "降溫中") return "trend-down";
-      return "trend-flat";
+    function levelClass(level) {
+      if (!level) return "risk-low";
+      if (level.includes("高")) return "risk-high";
+      if (level.includes("中")) return "risk-mid";
+      return "risk-low";
     }
 
-    function formatPct(value) {
-      if (value === null || value === undefined || Number.isNaN(Number(value))) return "N/A";
-      const n = Number(value);
-      return `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
+    function riskLabel(level) {
+      if (!level) return "低熱度";
+      if (level.includes("高")) return "高熱度";
+      if (level.includes("中")) return "中熱度";
+      return "低熱度";
     }
 
-    function formatScore(value) {
-      if (value === null || value === undefined || Number.isNaN(Number(value))) return "N/A";
-      return `${Number(value).toFixed(1)} / 100`;
+    function safeText(value, fallback = "N/A") {
+      return value === null || value === undefined || value === "" ? fallback : value;
     }
 
-    function formatPeriodStatus(status) {
-      if (status === "ongoing") return "進行中";
-      if (status === "completed") return "已結束";
-      if (status === "none") return "近期無社群高熱度區間";
-      return "N/A";
-    }
-
-    function formatPeriodRange(market) {
-      const start = market?.period_start;
-      const end = market?.period_end;
-      const status = market?.period_status;
-
-      if (!start || !end || status === "none") {
-        return "N/A";
+    async function fetchJson(url) {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`API 回應錯誤：${res.status}`);
       }
-
-      if (start === end) {
-        return `${start}（單日社群高熱）`;
-      }
-
-      return `${start} ～ ${end}`;
+      return await res.json();
     }
 
-    function normalize(arr) {
-      const nums = arr.map(Number).filter(v => !Number.isNaN(v));
-      if (!nums.length) return arr.map(() => 50);
-      const min = Math.min(...nums);
-      const max = Math.max(...nums);
-      if (max === min) return arr.map(() => 50);
-      return arr.map(v => ((Number(v) - min) / (max - min)) * 100);
-    }
-
-    function getScoreColor(score) {
-      const s = clamp(Number(score) || 0, 0, 100);
-
-      if (s <= 50) {
-        const t = s / 50;
-        const r = Math.round(53 + (246 - 53) * t);
-        const g = Math.round(208 + (216 - 208) * t);
-        const b = Math.round(127 + (91 - 127) * t);
-        return `rgb(${r}, ${g}, ${b})`;
-      } else {
-        const t = (s - 50) / 50;
-        const r = Math.round(246 + (255 - 246) * t);
-        const g = Math.round(216 + (93 - 216) * t);
-        const b = Math.round(91 + (115 - 91) * t);
-        return `rgb(${r}, ${g}, ${b})`;
-      }
-    }
-
-    function isHighHeatPoint(point, threshold = 70) {
-      if (point?.is_high_heat_period === true) {
-        return true;
-      }
-
-      const max5 = point?.social_heat_5d_max;
-      if (max5 !== null && max5 !== undefined && !Number.isNaN(Number(max5))) {
-        return Number(max5) >= threshold;
-      }
-
-      const heat = point?.social_heat;
-      if (heat !== null && heat !== undefined && !Number.isNaN(Number(heat))) {
-        return Number(heat) >= threshold;
-      }
-
-      return false;
-    }
-
-    function getLatestHighHeatRange(chart, threshold = 70) {
-      if (!chart || !chart.length) return null;
-
-      let start = null;
-      let latest = null;
-
-      for (let i = 0; i < chart.length; i++) {
-        const isHigh = isHighHeatPoint(chart[i], threshold);
-
-        if (isHigh && start === null) {
-          start = i;
-        }
-
-        const isLast = i === chart.length - 1;
-
-        if (start !== null && (!isHigh || isLast)) {
-          const end = (isHigh && isLast) ? i : i - 1;
-
-          latest = {
-            startIdx: start,
-            endIdx: end,
-            startDate: chart[start]?.date || "N/A",
-            endDate: chart[end]?.date || "N/A",
-            duration: end - start + 1
-          };
-
-          start = null;
-        }
-      }
-
-      return latest;
-    }
-
-    function getChartWindow(chart, latestRange) {
-      if (!chart || !chart.length) return { data: [], offset: 0 };
-
-      return {
-        data: chart,
-        offset: 0
-      };
-    }
-
-    function renderLeaderboard(items) {
-      const box = document.getElementById("leaderboard");
-
-      if (!items || !items.length) {
-        box.innerHTML = `<div class="error">排行榜沒有資料。</div>`;
-        return;
-      }
-
-      box.innerHTML = `
-        <div class="leader-head">
-          <div>排行</div>
-          <div>公司</div>
-          <div>綜合熱度風險</div>
-          <div>熱度等級</div>
-          <div>社群討論趨勢</div>
-        </div>
-
-        ${items.map(item => {
-          const trend = item.social_index?.trend || "N/A";
-          return `
-            <div class="leader-row ${item.canonical_ticker === currentTicker ? "active" : ""}" onclick="loadStock('${item.canonical_ticker}')">
-              <div class="rank">#${item.rank}</div>
-
-              <div class="ticker-name">
-                <strong>${item.canonical_ticker}</strong>
-                <span>${item.display_name}</span>
-              </div>
-
-              <div class="score">${Number(item.heat_score).toFixed(1)}</div>
-
-              <div>
-                <span class="badge ${badgeClass(item.heat_level)}">${item.heat_level}熱度</span>
-              </div>
-
-              <div class="trend-text ${trendClass(trend)}">${trend}</div>
-            </div>
-          `;
-        }).join("")}
-      `;
-    }
-
-    function renderChart(chart) {
-      if (!chart || !chart.length) {
-        return `<div class="loading">沒有可顯示的圖表資料。</div>`;
-      }
-
-      const latestRange = getLatestHighHeatRange(chart, 70);
-      const windowed = getChartWindow(chart, latestRange);
-      const recent = windowed.data;
-      const offset = windowed.offset;
-
-      const W = 720;
-      const H = 340;
-      const P = 50;
-
-      const heat = recent.map(d => Number(d.social_heat || 0));
-      const priceNorm = normalize(recent.map(d => Number(d.close || 0)));
-      const n = recent.length;
-
-      const x = i => P + (i * (W - P * 2)) / Math.max(n - 1, 1);
-      const y = v => H - P - (v * (H - P * 2)) / 100;
-
-      const toPath = arr => arr.map((v, i) => {
-        return `${i === 0 ? "M" : "L"} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`;
-      }).join(" ");
-
-      let grid = "";
-      const yTicks = [0, 25, 50, 75, 100];
-
-      yTicks.forEach(tick => {
-        const gy = y(tick);
-        grid += `
-          <line x1="${P}" y1="${gy}" x2="${W - P}" y2="${gy}" stroke="rgba(255,255,255,0.08)" />
-          <text x="${P - 10}" y="${gy + 4}" text-anchor="end">${tick}</text>
-        `;
-      });
-
-      let band = "";
-      if (latestRange) {
-        const startInSlice = latestRange.startIdx - offset;
-        const endInSlice = latestRange.endIdx - offset;
-
-        if (startInSlice >= 0 && endInSlice < recent.length) {
-          const step = n > 1 ? (W - P * 2) / (n - 1) : 0;
-          const bandX1 = clamp(x(startInSlice) - step / 2, P, W - P);
-          const bandX2 = clamp(x(endInSlice) + step / 2, P, W - P);
-          const bandWidth = Math.max(8, bandX2 - bandX1);
-
-          band = `
-            <rect x="${bandX1}" y="${P}" width="${bandWidth}" height="${H - P * 2}" fill="rgba(255,93,115,0.16)" rx="8" />
-            <text x="${bandX1 + 6}" y="${P + 14}" text-anchor="start">最近一次社群高熱度區間</text>
-          `;
-        }
-      }
-
-      const firstDate = recent[0]?.date || "";
-      const q1Date = recent[Math.floor((recent.length - 1) * 0.25)]?.date || "";
-      const midDate = recent[Math.floor((recent.length - 1) * 0.50)]?.date || "";
-      const q3Date = recent[Math.floor((recent.length - 1) * 0.75)]?.date || "";
-      const lastDate = recent[recent.length - 1]?.date || "";
-
-      return `
-        <div class="chart-wrap">
-          <svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-            ${grid}
-            ${band}
-
-            <line x1="${P}" y1="${P}" x2="${P}" y2="${H - P}" stroke="rgba(255,255,255,0.25)" />
-            <line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="rgba(255,255,255,0.25)" />
-
-            <path d="${toPath(heat)}" fill="none" stroke="#ff9f43" stroke-width="3" stroke-linecap="round" />
-            <path d="${toPath(priceNorm)}" fill="none" stroke="#6ea8fe" stroke-width="3" stroke-linecap="round" />
-
-            <text x="${P}" y="${H - 14}" text-anchor="start">${firstDate}</text>
-            <text x="${P + (W - P * 2) * 0.25}" y="${H - 14}" text-anchor="middle">${q1Date}</text>
-            <text x="${W / 2}" y="${H - 14}" text-anchor="middle">${midDate}</text>
-            <text x="${P + (W - P * 2) * 0.75}" y="${H - 14}" text-anchor="middle">${q3Date}</text>
-            <text x="${W - P}" y="${H - 14}" text-anchor="end">${lastDate}</text>
-
-            <text x="${W / 2}" y="${H - 2}" text-anchor="middle">日期</text>
-
-            <text
-              x="16"
-              y="${H / 2}"
-              text-anchor="middle"
-              transform="rotate(-90 16 ${H / 2})"
-            >
-              標準化指數（0–100）
-            </text>
-          </svg>
-
-          <div class="legend">
-            <span class="lg-band">社群高熱度區間</span>
-            <span class="lg-heat">標準化社群熱度</span>
-            <span class="lg-price">股價趨勢（標準化）</span>
-          </div>
-
-          <div style="margin-top:10px;color:var(--muted);font-size:13px;line-height:1.6;">
-            社群熱度以近一年資料作為標準化基準；當單日社群熱度 ≥ 70 時，會觸發 5 個交易日的社群高熱度區間；若區間內社群熱度仍維持 ≥ 60，則有效期會繼續延長。
-          </div>
-        </div>
-      `;
-    }
-
-    async function loadLeaderboard() {
-      const status = document.getElementById("apiStatus");
-      const updated = document.getElementById("updatedAt");
-
+    async function checkHealth() {
       try {
-        status.textContent = "正在連接 HeatScope API...";
-        const res = await fetch(`${API_BASE}/api/watchlist/heat`);
-
-        if (!res.ok) {
-          throw new Error(`API 回應錯誤：${res.status}`);
-        }
-
-        const data = await res.json();
-        leaderboardData = data.leaderboard || [];
-
-        status.textContent = `API 已連線｜共 ${data.total || leaderboardData.length} 檔`;
-        updated.textContent = data.generated_at ? `更新時間：${new Date(data.generated_at).toLocaleString("zh-TW")}` : "已更新";
-
-        if (!currentTicker && leaderboardData.length) {
-          currentTicker = leaderboardData[0].canonical_ticker;
-        }
-
-        renderLeaderboard(leaderboardData);
-
-        if (currentTicker) {
-          await loadStock(currentTicker);
-        }
-
+        await fetchJson(`${API_BASE}/health`);
       } catch (err) {
-        status.textContent = "API 連線失敗";
-        document.getElementById("leaderboard").innerHTML = `
-          <div class="error">
-            無法載入 Replit API。<br>
-            可能原因：Replit 服務暫停、後端未啟動、或 CORS / 網路問題。<br>
-            錯誤訊息：${err.message}
-          </div>
-        `;
+        console.warn("Health check failed", err);
       }
     }
 
     async function loadStock(query) {
-      const cleanQuery = String(query || "").trim();
+      const q = encodeURIComponent(query.trim());
+      if (!q) return;
 
-      if (!cleanQuery) {
-        return;
-      }
-
-      const panel = document.getElementById("detailPanel");
-      panel.innerHTML = `<div class="loading">載入 ${cleanQuery} 詳細資料中...</div>`;
+      $("searchBtn").disabled = true;
+      $("searchBtn").textContent = "查詢中";
+      $("resultArea").innerHTML = `<div class="card span-12 loading">正在載入 ${query} 的資料...</div>`;
 
       try {
-        const res = await fetch(`${API_BASE}/api/stock/${encodeURIComponent(cleanQuery)}`);
-
-        if (!res.ok) {
-          throw new Error(`API 回應錯誤：${res.status}`);
-        }
-
-        const data = await res.json();
-        currentTicker = data.canonical_ticker || cleanQuery.toUpperCase();
-
-        renderLeaderboard(leaderboardData);
-        renderStockDetail(data);
-
+        const data = await fetchJson(`${API_BASE}/api/stock/${q}`);
+        renderStock(data);
       } catch (err) {
-        panel.innerHTML = `
+        $("resultArea").innerHTML = `
           <div class="error">
-            無法載入 ${cleanQuery} 詳細資料。<br>
-            可能原因：標的不存在、後端暫停、或資料來源暫時失敗。<br>
+            無法載入 ${query} 詳細資料。<br />
+            可能原因：標的不存在、API 暫時失敗，或資料來源尚未支援。<br />
+            錯誤訊息：${err.message}
+          </div>
+        `;
+      } finally {
+        $("searchBtn").disabled = false;
+        $("searchBtn").textContent = "查詢";
+      }
+    }
+
+    function renderStock(data) {
+      const score = Number(data.heat_score || 0);
+      const market = data.market_summary || {};
+      const social = data.social_index || {};
+      const components = data.score_components || {};
+      const flags = data.raw_flags || {};
+      const rawWeightVersion = flags.heat_risk_score_weight_version || "confirmation_heavy_v1";
+
+      const resultHtml = `
+        <section class="result-head">
+          <div>
+            <h2 class="stock-title">${safeText(data.canonical_ticker)} ・ ${safeText(data.display_name)}</h2>
+            <div class="stock-subtitle">${safeText(data.sentiment_observation, "社群與市場訊號仍待觀察。")}</div>
+          </div>
+          <span class="risk-badge ${levelClass(data.heat_level)}">${riskLabel(data.heat_level)}</span>
+        </section>
+
+        <section class="grid">
+          <div class="card span-3">
+            <div class="small-title">綜合熱度風險</div>
+            <div class="big-number" style="color:${score >= 70 ? "var(--red)" : score >= 40 ? "var(--yellow)" : "var(--green)"}">
+              ${fmt(score)}
+            </div>
+            <div class="score-bar">
+              <div class="score-knob" style="left:${clamp(score, 0, 100)}%"></div>
+            </div>
+            <div class="score-scale">
+              <span>0</span>
+              <span>${fmt(score)} / 100</span>
+              <span>100</span>
+            </div>
+            <div class="subtext">依分數所在位置對應綠 → 黃 → 紅色帶</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">目前狀態</div>
+            <div class="big-number" style="font-size:28px;">${safeText(data.current_status)}</div>
+            <div class="subtext">以社群熱度 Z-score 訊號的 5 交易日有效期判斷</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">社群高熱度區間</div>
+            <div class="big-number" style="font-size:27px;">
+              ${safeText(market.period_start)}${market.period_end ? " ~ " + market.period_end : ""}
+            </div>
+            <div class="subtext">Z ≥ 2 觸發；區間內 Z ≥ 1 延長</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">區間狀態</div>
+            <div class="big-number" style="font-size:30px;">
+              ${market.period_status === "ongoing" ? "進行中" : market.period_status === "completed" ? "已結束" : "N/A"}
+            </div>
+            <div class="subtext">區間持續：${fmt(data.high_heat_duration_days, " 天")}</div>
+          </div>
+
+          <div class="card span-7">
+            <h2 class="section-title">Social Heat × Price</h2>
+            <div class="chart-wrap">
+              <canvas id="stockChart"></canvas>
+            </div>
+            <div class="subtext">
+              橘線為標準化社群熱度；藍線為標準化股價走勢；紅色區段為社群高熱度期間。
+            </div>
+          </div>
+
+          <div class="card span-5">
+            <h2 class="section-title">標準化熱度與區間摘要</h2>
+            <div class="metric-list">
+              <div class="metric-row">
+                <span>社群熱度指數</span>
+                <span>${fmt(social.overall)} / 100</span>
+              </div>
+              <div class="metric-row">
+                <span>最新社群 Z-score</span>
+                <span>${fmt(flags.latest_social_heat_zscore)}</span>
+              </div>
+              <div class="metric-row">
+                <span>PTT 近 14 日熱度貢獻</span>
+                <span>${fmt(social.ptt_contribution)} / 100</span>
+              </div>
+              <div class="metric-row">
+                <span>Reddit 近 14 日熱度貢獻</span>
+                <span>${data.raw_flags?.market_type === "taiwan" ? "台股不採用" : fmt(social.reddit_contribution) + " / 100"}</span>
+              </div>
+              <div class="metric-row">
+                <span>社群討論趨勢</span>
+                <span>${safeText(social.trend)}</span>
+              </div>
+              <div class="metric-row">
+                <span>社群高熱度區間累積報酬率</span>
+                <span>${fmt(market.cumulative_return_pct, "%")}</span>
+              </div>
+              <div class="metric-row">
+                <span>平均成交量變化</span>
+                <span>${fmt(market.avg_volume_change_pct, "%")}</span>
+              </div>
+              <div class="metric-row">
+                <span>權重版本</span>
+                <span>${rawWeightVersion}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card span-12">
+            <h2 class="section-title">分數組成</h2>
+            <div class="two-col">
+              <div class="info-block">
+                <strong>${fmt((components.attention ?? 0) * 100)}%</strong>
+                <span>Attention：社群熱度 Z-score 異常程度</span>
+              </div>
+              <div class="info-block">
+                <strong>${fmt((components.duration ?? 0) * 100)}%</strong>
+                <span>Duration：高熱度區間持續性</span>
+              </div>
+              <div class="info-block">
+                <strong>${fmt((components.acceleration ?? 0) * 100)}%</strong>
+                <span>Acceleration：社群熱度升溫速度</span>
+              </div>
+              <div class="info-block">
+                <strong>${fmt((components.price ?? 0) * 100)}%</strong>
+                <span>Price：股價近期動能</span>
+              </div>
+              <div class="info-block">
+                <strong>${fmt((components.volume ?? 0) * 100)}%</strong>
+                <span>Volume：成交量異常程度</span>
+              </div>
+              <div class="info-block">
+                <strong>${fmt((components.available_weight_sum ?? 0) * 100)}%</strong>
+                <span>Available Weight：缺少融資或題材資料時重新正規化</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+
+      $("resultArea").innerHTML = resultHtml;
+      renderChart(data);
+    }
+
+    function renderChart(data) {
+      const chart = data.chart || [];
+      const labels = chart.map(d => d.date);
+      const heat = chart.map(d => d.social_heat ?? 0);
+      const close = chart.map(d => d.close ?? null);
+      const highHeat = chart.map(d => d.is_high_heat_period ? 100 : null);
+
+      const validClose = close.filter(v => v !== null && v !== undefined);
+      const minClose = validClose.length ? Math.min(...validClose) : 0;
+      const maxClose = validClose.length ? Math.max(...validClose) : 1;
+      const priceNorm = close.map(v => {
+        if (v === null || v === undefined || maxClose === minClose) return null;
+        return ((v - minClose) / (maxClose - minClose)) * 100;
+      });
+
+      if (chartInstance) chartInstance.destroy();
+
+      const ctx = $("stockChart").getContext("2d");
+
+      chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "社群熱度",
+              data: heat,
+              borderColor: "#ff9d4d",
+              backgroundColor: "rgba(255,157,77,0.08)",
+              tension: 0.25,
+              pointRadius: 0,
+              borderWidth: 2,
+              yAxisID: "y"
+            },
+            {
+              label: "股價趨勢（標準化）",
+              data: priceNorm,
+              borderColor: "#73a8ff",
+              backgroundColor: "rgba(115,168,255,0.08)",
+              tension: 0.25,
+              pointRadius: 0,
+              borderWidth: 2,
+              yAxisID: "y"
+            },
+            {
+              label: "社群高熱度區間",
+              data: highHeat,
+              borderColor: "rgba(255,107,122,0.0)",
+              backgroundColor: "rgba(255,107,122,0.22)",
+              pointRadius: 0,
+              fill: true,
+              stepped: true,
+              yAxisID: "y"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "#c8d4ff",
+                font: { weight: "bold" }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                afterBody: (items) => {
+                  const idx = items[0].dataIndex;
+                  const row = chart[idx];
+                  return [
+                    `Z-score: ${row.social_heat_zscore ?? "N/A"}`,
+                    `收盤價: ${row.close ?? "N/A"}`,
+                    `高熱度區間: ${row.is_high_heat_period ? "是" : "否"}`
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: "#aebcf7",
+                maxTicksLimit: 6
+              },
+              grid: {
+                color: "rgba(255,255,255,0.06)"
+              }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              ticks: {
+                color: "#aebcf7"
+              },
+              grid: {
+                color: "rgba(255,255,255,0.08)"
+              }
+            }
+          }
+        }
+      });
+    }
+
+    async function loadLeaderboard() {
+      try {
+        const data = await fetchJson(`${API_BASE}/api/watchlist/heat`);
+        renderLeaderboard(data);
+      } catch (err) {
+        $("leaderboardArea").innerHTML = `
+          <div class="error">
+            排行榜載入失敗。<br />
             錯誤訊息：${err.message}
           </div>
         `;
       }
     }
 
-    function renderStockDetail(data) {
-      const panel = document.getElementById("detailPanel");
+    function renderLeaderboard(data) {
+      const rows = data.leaderboard || [];
+      if (!rows.length) {
+        $("leaderboardArea").innerHTML = `<div class="loading">目前沒有排行榜資料。</div>`;
+        return;
+      }
 
-      const heat = Number(data.heat_score ?? 0);
-      const level = data.heat_level || "低";
-      const market = data.market_summary || {};
-      const socialIndex = data.social_index || {};
-      const rawFlags = data.raw_flags || {};
-      const isTaiwanStock = rawFlags.market_type === "taiwan";
-      const redditContributionText = isTaiwanStock
-        ? "台股不採用"
-        : formatScore(socialIndex.reddit_contribution);
-      const scoreColor = getScoreColor(heat);
-
-      const periodRangeText = formatPeriodRange(market);
-      const periodStatusText = formatPeriodStatus(market.period_status);
-      const periodDurationText = data.high_heat_duration_days ? `${data.high_heat_duration_days} 個交易日` : "0 個交易日";
-
-      panel.innerHTML = `
-        <div class="status-row">
-          <div>
-            <h2 style="margin:0 0 6px;font-size:30px;">${data.canonical_ticker} · ${data.display_name}</h2>
-            <div style="color:var(--muted);line-height:1.6;">${data.sentiment_observation || ""}</div>
-          </div>
-          <span class="badge ${badgeClass(level)}">${level}熱度</span>
-        </div>
-
-        <div class="grid-4">
-          <div class="card">
-            <div class="metric-label">綜合熱度風險</div>
-            <div class="metric-value" style="color:${scoreColor};">${heat.toFixed(1)}</div>
-
-            <div class="score-bar-wrap">
-              <div class="score-gradient-bar">
-                <div
-                  class="score-marker"
-                  style="left:${clamp(heat, 0, 100)}%; color:${scoreColor};"
-                ></div>
-              </div>
-
-              <div class="score-row">
-                <span>0</span>
-                <strong style="color:${scoreColor};">${heat.toFixed(1)} / 100</strong>
-                <span>100</span>
-              </div>
-
-              <div class="score-scale">
-                <span style="color:#35d07f;">低風險</span>
-                <span style="color:#f6d85b;">中性偏熱</span>
-                <span style="color:#ff5d73;">高風險</span>
-              </div>
-            </div>
-
-            <div class="metric-sub">依分數所在位置對應綠 → 黃 → 紅色帶</div>
-          </div>
-
-          <div class="card">
-            <div class="metric-label">目前狀態</div>
-            <div class="metric-value" style="font-size:24px;">${data.current_status || "N/A"}</div>
-            <div class="metric-sub">以 70 觸發、60 延長的社群高熱度訊號判斷</div>
-          </div>
-
-          <div class="card">
-            <div class="metric-label">社群高熱度區間</div>
-            <div class="metric-value" style="font-size:22px;">${periodRangeText}</div>
-            <div class="metric-sub">若目前不在社群高熱度區間，則顯示最近一次已結束區間</div>
-          </div>
-
-          <div class="card">
-            <div class="metric-label">區間狀態</div>
-            <div class="metric-value" style="font-size:24px;">${periodStatusText}</div>
-            <div class="metric-sub">區間持續：${periodDurationText}</div>
-          </div>
-        </div>
-
-        <div class="grid-2" style="margin-top:16px;">
-          <div class="card">
-            <h3 style="margin:0 0 14px;">Social Heat × Price</h3>
-            ${renderChart(data.chart || [])}
-          </div>
-
-          <div class="card">
-            <h3 style="margin:0 0 14px;">標準化熱度與區間摘要</h3>
-
-            <div class="info-list">
-              <div class="info-item"><span>社群熱度指數</span><strong>${formatScore(socialIndex.overall)}</strong></div>
-              <div class="info-item"><span>PTT 近 14 日熱度貢獻</span><strong>${formatScore(socialIndex.ptt_contribution)}</strong></div>
-              <div class="info-item"><span>Reddit 近 14 日熱度貢獻</span><strong>${redditContributionText}</strong></div>
-              <div class="info-item"><span>社群討論趨勢</span><strong>${socialIndex.trend || "N/A"}</strong></div>
-              <div class="info-item"><span>社群高熱度區間</span><strong>${periodRangeText}</strong></div>
-              <div class="info-item"><span>區間狀態</span><strong>${periodStatusText}</strong></div>
-              ${market.analysis_start && market.analysis_end ? `
-                <div class="info-item"><span>市場反應計算區間</span><strong>${market.analysis_start} ～ ${market.analysis_end}</strong></div>
-              ` : ""}
-              <div class="info-item"><span>區間市場累積報酬率</span><strong>${formatPct(market.cumulative_return_pct)}</strong></div>
-              <div class="info-item"><span>區間平均成交量變化</span><strong>${formatPct(market.avg_volume_change_pct)}</strong></div>
-              <div class="info-item"><span>區間融資成長量</span><strong>${formatPct(market.margin_growth_pct)}</strong></div>
-              <div class="info-item"><span>資料狀態</span><strong>${data.data_status || "N/A"}</strong></div>
-            </div>
-          </div>
+      const html = `
+        <table class="leaderboard">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>股票</th>
+              <th>名稱</th>
+              <th>分數</th>
+              <th>等級</th>
+              <th>狀態</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(row => `
+              <tr onclick="loadStock('${row.canonical_ticker}')">
+                <td class="rank">${row.rank ?? ""}</td>
+                <td class="ticker">${row.canonical_ticker}</td>
+                <td class="muted">${row.display_name}</td>
+                <td><strong>${fmt(row.heat_score)}</strong></td>
+                <td><span class="risk-badge ${levelClass(row.heat_level)}">${riskLabel(row.heat_level)}</span></td>
+                <td class="muted">${row.current_status}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+        <div class="footer-note">
+          目前觀察池共 ${data.universe_size ?? "N/A"} 檔，排行榜顯示前 ${data.leaderboard_limit ?? 20} 檔。
         </div>
       `;
+
+      $("leaderboardArea").innerHTML = html;
     }
 
-    document.getElementById("stockSearchForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-      const query = document.getElementById("stockSearchInput").value.trim();
-      if (query) {
-        loadStock(query);
-      }
+    $("searchBtn").addEventListener("click", () => {
+      loadStock($("searchInput").value);
     });
 
+    $("searchInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") loadStock($("searchInput").value);
+    });
+
+    checkHealth();
     loadLeaderboard();
+    loadStock("2454");
   </script>
 </body>
 </html>
