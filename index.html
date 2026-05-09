@@ -1,139 +1,360 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HeatScope｜社群熱度股票風險儀表板</title>
+  <title>HeatScope | Social Heat Risk Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     :root {
-      --bg: #0b1024;
-      --panel: #111936;
-      --panel-2: #1a2448;
-      --border: rgba(255,255,255,0.10);
-      --text: #f5f7ff;
-      --muted: #aebcf7;
-      --muted-2: #7d8bc9;
+      --bg: #080c1a;
+      --bg2: #0d1328;
+      --panel: rgba(18, 27, 57, 0.86);
+      --panel2: rgba(27, 39, 78, 0.86);
+      --line: rgba(255, 255, 255, 0.11);
+      --text: #f6f8ff;
+      --muted: #a9b8ee;
+      --muted2: #7f8cc8;
       --blue: #73a8ff;
+      --blue2: #2f63ff;
       --green: #51d88a;
       --yellow: #ffd45a;
       --orange: #ff9d4d;
       --red: #ff6b7a;
       --purple: #b087ff;
-      --shadow: 0 20px 60px rgba(0,0,0,0.35);
-      --radius: 22px;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.38);
+      --radius: 24px;
+      --radius2: 32px;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       background:
-        radial-gradient(circle at 20% 0%, rgba(72, 107, 255, 0.25), transparent 35%),
-        radial-gradient(circle at 90% 10%, rgba(255, 107, 122, 0.12), transparent 30%),
+        radial-gradient(circle at 10% -10%, rgba(47, 99, 255, 0.28), transparent 38%),
+        radial-gradient(circle at 90% 0%, rgba(255, 107, 122, 0.13), transparent 32%),
+        radial-gradient(circle at 70% 55%, rgba(81, 216, 138, 0.08), transparent 28%),
         var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
       line-height: 1.6;
     }
 
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
     .wrap {
-      max-width: 1180px;
+      width: min(1180px, calc(100% - 36px));
       margin: 0 auto;
-      padding: 36px 22px 80px;
     }
 
-    header {
-      margin-bottom: 26px;
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(8, 12, 26, 0.74);
+      border-bottom: 1px solid var(--line);
     }
 
-    .brand {
+    .nav-inner {
+      width: min(1180px, calc(100% - 36px));
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 18px;
+      gap: 18px;
+      padding: 16px 0;
     }
 
     .logo {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-weight: 900;
-      font-size: 28px;
-      letter-spacing: -0.02em;
+      font-weight: 1000;
+      letter-spacing: -0.04em;
+      font-size: 23px;
     }
 
     .logo-dot {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--green), var(--yellow), var(--red));
       box-shadow: 0 0 24px rgba(255, 212, 90, 0.6);
     }
 
-    .status-pill {
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
       color: var(--muted);
-      padding: 9px 14px;
+      padding: 8px 12px;
       border-radius: 999px;
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 800;
       white-space: nowrap;
     }
 
-    .status-light {
+    .live-dot {
       width: 8px;
       height: 8px;
-      border-radius: 50%;
+      border-radius: 999px;
       background: var(--green);
       box-shadow: 0 0 14px var(--green);
     }
 
     .hero {
-      background: rgba(17, 25, 54, 0.78);
-      border: 1px solid var(--border);
-      border-radius: 30px;
+      padding: 78px 0 42px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .hero-card {
+      background: linear-gradient(180deg, rgba(18, 27, 57, 0.92), rgba(16, 22, 45, 0.84));
+      border: 1px solid var(--line);
+      border-radius: var(--radius2);
+      padding: clamp(28px, 4.8vw, 54px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -120px;
+      bottom: -140px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(115, 168, 255, 0.16), transparent 66%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(46px, 7.2vw, 88px);
+      line-height: 0.94;
+      letter-spacing: -0.075em;
+      margin: 0 0 20px;
+    }
+
+    .hero-sub {
+      font-size: clamp(18px, 2vw, 23px);
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0 0 28px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 20px;
+      font-weight: 1000;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.16s ease, border 0.16s ease;
+      font-size: 15px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue2), var(--blue));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .hero-metric-card {
+      background:
+        linear-gradient(180deg, rgba(27, 39, 78, 0.88), rgba(14, 20, 42, 0.86));
+      border: 1px solid var(--line);
+      border-radius: var(--radius2);
       padding: 28px;
       box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
+      display: grid;
+      gap: 14px;
     }
 
-    .hero h1 {
-      font-size: clamp(34px, 5vw, 58px);
-      line-height: 1.05;
-      margin: 0 0 14px;
-      letter-spacing: -0.05em;
+    .metric-big {
+      padding: 20px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid var(--line);
     }
 
-    .hero p {
+    .metric-label {
       color: var(--muted);
-      font-size: 18px;
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 40px;
+      line-height: 1;
+      font-weight: 1000;
+      letter-spacing: -0.055em;
+    }
+
+    .metric-value.red { color: var(--red); }
+    .metric-value.green { color: var(--green); }
+    .metric-value.yellow { color: var(--yellow); }
+
+    section {
+      padding: 34px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.05;
       margin: 0;
-      max-width: 840px;
+      letter-spacing: -0.055em;
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 720px;
+      margin: 10px 0 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.24);
+    }
+
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .feature-card h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      background: rgba(115, 168, 255, 0.13);
+      color: var(--blue);
+      font-weight: 1000;
+    }
+
+    .dashboard-shell {
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow);
     }
 
     .search-box {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 12px;
-      margin-top: 28px;
+      margin-top: 18px;
     }
 
     input {
       width: 100%;
-      background: #1a2448;
+      background: #162044;
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 1px solid var(--line);
       border-radius: 18px;
-      padding: 18px 20px;
-      font-size: 20px;
-      font-weight: 800;
+      padding: 16px 18px;
+      font-size: 18px;
+      font-weight: 900;
       outline: none;
     }
 
@@ -144,11 +365,11 @@
 
     button {
       border: 0;
-      background: linear-gradient(135deg, #2f63ff, #73a8ff);
+      background: linear-gradient(135deg, var(--blue2), var(--blue));
       color: white;
-      font-weight: 900;
-      font-size: 18px;
-      padding: 0 28px;
+      font-weight: 1000;
+      font-size: 16px;
+      padding: 0 24px;
       border-radius: 18px;
       cursor: pointer;
       transition: transform 0.15s ease, opacity 0.15s ease;
@@ -163,55 +384,122 @@
       cursor: not-allowed;
     }
 
-    .hint {
-      color: var(--muted);
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.075);
+      text-align: left;
+      vertical-align: middle;
       font-size: 14px;
-      margin-top: 12px;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 1000;
+    }
+
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: rgba(115, 168, 255, 0.10);
+    }
+
+    .rank {
+      color: var(--muted);
+      font-weight: 1000;
+      width: 48px;
+    }
+
+    .ticker {
+      font-weight: 1000;
+      color: var(--text);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-weight: 1000;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .badge-high {
+      color: #ffdce2;
+      background: rgba(255, 107, 122, 0.20);
+    }
+
+    .badge-mid {
+      color: #fff2bd;
+      background: rgba(255, 212, 90, 0.17);
+    }
+
+    .badge-low {
+      color: #c7ffde;
+      background: rgba(81, 216, 138, 0.15);
+    }
+
+    .badge-neutral {
+      color: #d9e3ff;
+      background: rgba(115, 168, 255, 0.12);
+    }
+
+    .result-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .stock-title {
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 1000;
+      letter-spacing: -0.06em;
+      line-height: 1.05;
+      margin: 0;
+    }
+
+    .stock-subtitle {
+      color: var(--muted);
+      margin-top: 8px;
+      font-size: 16px;
       font-weight: 700;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 16px;
-      margin-top: 24px;
-    }
-
-    .card {
-      background: rgba(17, 25, 54, 0.86);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.22);
-    }
-
-    .span-3 { grid-column: span 3; }
-    .span-4 { grid-column: span 4; }
-    .span-5 { grid-column: span 5; }
-    .span-6 { grid-column: span 6; }
-    .span-7 { grid-column: span 7; }
-    .span-8 { grid-column: span 8; }
-    .span-12 { grid-column: span 12; }
-
-    .section-title {
-      font-size: 24px;
-      font-weight: 950;
-      margin: 0 0 16px;
-      letter-spacing: -0.02em;
     }
 
     .small-title {
       color: var(--muted);
-      font-weight: 900;
-      font-size: 15px;
+      font-weight: 1000;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       margin-bottom: 8px;
     }
 
     .big-number {
-      font-size: 36px;
+      font-size: 38px;
       font-weight: 1000;
-      letter-spacing: -0.04em;
       line-height: 1;
+      letter-spacing: -0.055em;
     }
 
     .subtext {
@@ -220,78 +508,32 @@
       margin-top: 8px;
     }
 
-    .risk-badge {
-      display: inline-flex;
-      padding: 6px 13px;
-      border-radius: 999px;
-      font-weight: 950;
-      font-size: 13px;
-    }
-
-    .risk-high {
-      color: #ffdce2;
-      background: rgba(255,107,122,0.22);
-    }
-
-    .risk-mid {
-      color: #fff2bd;
-      background: rgba(255,212,90,0.18);
-    }
-
-    .risk-low {
-      color: #c7ffde;
-      background: rgba(81,216,138,0.16);
-    }
-
     .score-bar {
       position: relative;
-      height: 16px;
+      height: 15px;
       border-radius: 999px;
       background: linear-gradient(90deg, var(--green), var(--yellow), var(--red));
-      margin: 18px 0 14px;
+      margin: 18px 0 12px;
     }
 
     .score-knob {
       position: absolute;
       top: 50%;
-      width: 20px;
-      height: 20px;
+      width: 19px;
+      height: 19px;
       border-radius: 50%;
       background: white;
-      border: 4px solid rgba(255,255,255,0.4);
+      border: 4px solid rgba(255, 255, 255, 0.44);
       transform: translate(-50%, -50%);
-      box-shadow: 0 0 16px rgba(255,255,255,0.5);
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.5);
     }
 
     .score-scale {
       display: flex;
       justify-content: space-between;
       color: var(--muted);
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .result-head {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 18px;
-      margin-top: 26px;
-    }
-
-    .stock-title {
-      font-size: clamp(28px, 4vw, 42px);
-      font-weight: 1000;
-      letter-spacing: -0.04em;
-      line-height: 1.1;
-      margin: 0;
-    }
-
-    .stock-subtitle {
-      color: var(--muted);
-      font-size: 18px;
-      margin-top: 8px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 900;
     }
 
     .metric-list {
@@ -304,91 +546,47 @@
       justify-content: space-between;
       gap: 16px;
       align-items: center;
-      background: rgba(255,255,255,0.045);
+      background: rgba(255, 255, 255, 0.045);
       border-radius: 14px;
       padding: 12px 14px;
     }
 
     .metric-row span:first-child {
       color: var(--muted);
-      font-weight: 800;
+      font-weight: 900;
     }
 
     .metric-row span:last-child {
-      font-weight: 950;
+      font-weight: 1000;
       text-align: right;
     }
 
     .chart-wrap {
-      height: 360px;
-      background: rgba(255,255,255,0.035);
-      border: 1px solid var(--border);
+      height: 370px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--line);
       border-radius: 18px;
       padding: 16px;
     }
 
-    .leaderboard {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
-      border-radius: 18px;
-    }
-
-    .leaderboard th,
-    .leaderboard td {
-      padding: 14px 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      text-align: left;
-      vertical-align: middle;
-      font-size: 14px;
-    }
-
-    .leaderboard th {
-      color: var(--muted);
-      font-size: 13px;
-      letter-spacing: 0.03em;
-    }
-
-    .leaderboard tr {
-      cursor: pointer;
-      transition: background 0.15s ease;
-    }
-
-    .leaderboard tbody tr:hover {
-      background: rgba(115, 168, 255, 0.10);
-    }
-
-    .rank {
-      color: var(--muted);
-      font-weight: 950;
-      width: 44px;
-    }
-
-    .ticker {
-      font-weight: 1000;
-      color: var(--text);
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .two-col {
+    .info-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
 
     .info-block {
-      background: rgba(255,255,255,0.045);
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 16px;
-      padding: 14px;
+      padding: 15px;
     }
 
     .info-block strong {
       display: block;
-      font-size: 20px;
+      font-size: 22px;
       margin-bottom: 6px;
+      letter-spacing: -0.04em;
     }
 
     .info-block span {
@@ -396,10 +594,26 @@
       font-size: 14px;
     }
 
+    .reason-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .reason-list li {
+      padding: 13px 14px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--muted);
+      font-weight: 750;
+    }
+
     .loading {
       color: var(--muted);
       font-weight: 900;
-      padding: 22px;
+      padding: 18px;
     }
 
     .error {
@@ -408,40 +622,42 @@
       border: 1px solid rgba(255, 107, 122, 0.35);
       border-radius: 18px;
       padding: 18px;
-      margin-top: 18px;
       font-weight: 850;
     }
 
-    .version-grid {
-      display: grid;
-      gap: 12px;
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
-    .version-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      background: rgba(255,255,255,0.045);
-      border-radius: 16px;
-      padding: 13px 16px;
+    .chip {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--muted);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
       font-weight: 900;
     }
 
-    .version-row span:first-child {
-      color: var(--muted);
+    .footer {
+      padding: 50px 0 70px;
+      color: var(--muted2);
+      text-align: center;
     }
 
-    .version-row span:last-child {
-      text-align: right;
-    }
-
-    .footer-note {
-      color: var(--muted-2);
+    .fine-print {
+      color: var(--muted2);
       font-size: 13px;
-      margin-top: 20px;
+      margin-top: 12px;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 940px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
       .span-3,
       .span-4,
       .span-5,
@@ -452,19 +668,23 @@
         grid-column: span 12;
       }
 
+      .nav-links {
+        display: none;
+      }
+
       .search-box {
         grid-template-columns: 1fr;
       }
 
       button {
-        height: 56px;
+        height: 54px;
       }
 
       .result-head {
         flex-direction: column;
       }
 
-      .two-col {
+      .info-grid {
         grid-template-columns: 1fr;
       }
 
@@ -476,90 +696,365 @@
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#top" class="logo">
+        <span class="logo-dot"></span>
+        <span>HeatScope</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#problem">Problem</a>
+        <a href="#solution">Solution</a>
+        <a href="#system">Live System</a>
+        <a href="#backtest">Backtest</a>
+        <a href="#method">Methodology</a>
+      </div>
+
+      <div class="pill">
+        <span class="live-dot"></span>
+        <span>Live API</span>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div class="hero-card">
+            <div class="eyebrow">Social attention × market risk</div>
+            <h1>HeatScope</h1>
+            <p class="hero-sub">
+              A social heat risk dashboard that tracks attention, momentum, volume anomalies,
+              and sentiment signals to identify stocks entering overheated and drawdown-prone zones.
+            </p>
+
+            <div class="cta-row">
+              <a class="btn btn-primary" href="#system">View Live Ranking</a>
+              <a class="btn btn-secondary" href="#stock-demo">Search a Stock</a>
+              <a class="btn btn-secondary" href="#backtest">Backtest Evidence</a>
+            </div>
+
+            <div class="fine-print">
+              Individual lookup supports Yahoo Finance-searchable U.S. and Taiwan stocks when data is available.
+              The leaderboard displays the current cached top heat-risk stocks from the supported universe.
+            </div>
+          </div>
+
+          <div class="hero-metric-card">
+            <div class="metric-big">
+              <div class="metric-label">Risk objective</div>
+              <div class="metric-value red">Drawdown</div>
+              <div class="subtext">Calibrated as an overheating and pullback-risk warning system, not a buy signal.</div>
+            </div>
+
+            <div class="metric-big">
+              <div class="metric-label">Backtest hit rate</div>
+              <div class="metric-value yellow">81.09%</div>
+              <div class="subtext">High-risk signals followed by at least -5% drawdown within 20 trading days.</div>
+            </div>
+
+            <div class="metric-big">
+              <div class="metric-label">Production weights</div>
+              <div class="metric-value green">v1</div>
+              <div class="subtext">confirmation_heavy_v1 emphasizes market confirmation with social attention.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="problem">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Investors see hype before they see risk.</h2>
+            <p class="section-desc">
+              Social media can make a stock feel unavoidable. But when attention, price momentum,
+              and trading activity rise together, the same excitement may also signal crowding,
+              FOMO, and future drawdown risk.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card feature-card span-4">
+            <div class="icon">01</div>
+            <h3>Attention is fragmented</h3>
+            <p>Discussions are scattered across PTT, Reddit, news headlines, and ticker aliases.</p>
+          </div>
+
+          <div class="card feature-card span-4">
+            <div class="icon">02</div>
+            <h3>Heat is not always bullish</h3>
+            <p>A spike in discussion can come from good news, panic, disappointment, or speculation.</p>
+          </div>
+
+          <div class="card feature-card span-4">
+            <div class="icon">03</div>
+            <h3>Chasing heat is risky</h3>
+            <p>High social heat often appears after large price moves, when pullback risk may already be elevated.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="solution">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">HeatScope turns market attention into risk signals.</h2>
+            <p class="section-desc">
+              The system combines social heat, abnormality relative to each stock’s own history,
+              price momentum, volume confirmation, sentiment, and explainable risk summaries.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card feature-card span-3">
+            <div class="icon">Z</div>
+            <h3>Social heat Z-score</h3>
+            <p>Compares current discussion heat against a one-year stock-specific baseline.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">P</div>
+            <h3>Price confirmation</h3>
+            <p>Detects whether strong market attention is accompanied by recent price momentum.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">V</div>
+            <h3>Volume anomaly</h3>
+            <p>Checks whether market participation is rising together with social attention.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">S</div>
+            <h3>Sentiment matrix</h3>
+            <p>Separates positive heat, negative heat, panic-style heat, and neutral observation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="system">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Live HeatScope System</h2>
+            <p class="section-desc">
+              Top 20 heat-risk stocks from the currently scanned and cached Yahoo Finance-compatible universe.
+              The leaderboard is ranked by HeatScope heat_score, not by market cap.
+            </p>
+          </div>
+          <div class="pill" id="apiStatus">
+            <span class="live-dot"></span>
+            <span>Checking API...</span>
+          </div>
+        </div>
+
+        <div class="dashboard-shell">
+          <div class="grid">
+            <div class="card span-12">
+              <div class="section-head" style="margin-bottom: 10px;">
+                <div>
+                  <h2 class="section-title" style="font-size: 30px;">Top 20 Heat-Risk Stocks</h2>
+                  <p class="section-desc" id="universeDescription">
+                    Loading universe metadata...
+                  </p>
+                </div>
+              </div>
+
+              <div id="leaderboardArea" class="loading">Loading leaderboard...</div>
+            </div>
+
+            <div class="card span-12" id="stock-demo">
+              <div class="section-head">
+                <div>
+                  <h2 class="section-title" style="font-size: 30px;">Stock Risk Analysis</h2>
+                  <p class="section-desc">
+                    Search any supported Yahoo Finance ticker. Taiwan numeric tickers are resolved automatically when available.
+                  </p>
+                </div>
+              </div>
+
+              <div class="search-box">
+                <input id="searchInput" placeholder="Try NVDA, AAPL, MU, SNDK, 2454, 2308, 2330..." />
+                <button id="searchBtn">Analyze</button>
+              </div>
+
+              <div id="resultArea" style="margin-top: 22px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="backtest">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Backtest Evidence</h2>
+            <p class="section-desc">
+              HeatScope is validated as an overheating and drawdown-risk warning system.
+              The objective is not to predict short-term upside, but to identify zones where chasing heat may become risky.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid" id="backtestCards">
+          <div class="card span-3">
+            <div class="small-title">Observations</div>
+            <div class="big-number">6,069</div>
+            <div class="subtext">Historical trading-day rows</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Hit rate</div>
+            <div class="big-number" style="color: var(--yellow);">81.09%</div>
+            <div class="subtext">20-day -5% drawdown after high-risk signals</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Avg. max drawdown</div>
+            <div class="big-number" style="color: var(--red);">-14.08%</div>
+            <div class="subtext">Average 20-day max drawdown</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Weight version</div>
+            <div class="big-number" style="font-size: 28px;">confirmation</div>
+            <div class="subtext">confirmation_heavy_v1</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Methodology</h2>
+            <p class="section-desc">
+              The production heat_score uses seven normalized factors. Missing components are not treated as zero;
+              the score is re-normalized across available components.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card span-7">
+            <h3 style="margin-top: 0; font-size: 24px;">Production Weights</h3>
+            <div class="metric-list">
+              <div class="metric-row"><span>Attention</span><span>0.28</span></div>
+              <div class="metric-row"><span>Duration</span><span>0.17</span></div>
+              <div class="metric-row"><span>Acceleration</span><span>0.08</span></div>
+              <div class="metric-row"><span>Price momentum</span><span>0.15</span></div>
+              <div class="metric-row"><span>Volume anomaly</span><span>0.15</span></div>
+              <div class="metric-row"><span>Financing / margin</span><span>0.10</span></div>
+              <div class="metric-row"><span>Peer / theme confirmation</span><span>0.07</span></div>
+            </div>
+          </div>
+
+          <div class="card span-5">
+            <h3 style="margin-top: 0; font-size: 24px;">Heat Period Rule</h3>
+            <p class="section-desc">
+              A social high-heat period is triggered when a stock’s social_heat_zscore reaches 2 or above.
+              While active, the period is extended when the Z-score remains above 1.
+            </p>
+            <div class="chips">
+              <span class="chip">Z ≥ 2 trigger</span>
+              <span class="chip">Z ≥ 1 extension</span>
+              <span class="chip">5 trading-day validity</span>
+              <span class="chip">1-year baseline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tech">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Technology Stack</h2>
+            <p class="section-desc">
+              Built as a lightweight full-stack prototype with a Python API backend and a static GitHub Pages frontend.
+            </p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="chips">
+            <span class="chip">FastAPI</span>
+            <span class="chip">Python</span>
+            <span class="chip">Yahoo Finance</span>
+            <span class="chip">PTT</span>
+            <span class="chip">Reddit</span>
+            <span class="chip">Replit Deployment</span>
+            <span class="chip">GitHub Pages</span>
+            <span class="chip">Chart.js</span>
+            <span class="chip">JavaScript</span>
+            <span class="chip">HTML / CSS</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Roadmap</h2>
+            <p class="section-desc">
+              Future improvements focus on richer coverage, better language understanding, and more robust risk calibration.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card feature-card span-3">
+            <div class="icon">01</div>
+            <h3>Google Trends</h3>
+            <p>Add search-interest data to complement social discussion signals.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">02</div>
+            <h3>Better sentiment</h3>
+            <p>Upgrade from keyword rules to a more context-aware sentiment model.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">03</div>
+            <h3>Theme detection</h3>
+            <p>Detect sector and narrative resonance across related stocks.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">04</div>
+            <h3>Market expansion</h3>
+            <p>Improve Taiwan and U.S. universe coverage with more stable caching.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="wrap">
+        <div class="logo" style="justify-content: center;">
           <span class="logo-dot"></span>
           <span>HeatScope</span>
         </div>
-        <div class="status-pill">
-          <span class="status-light"></span>
-          <span>正式 API 已部署</span>
+        <div class="fine-print">
+          HeatScope is a risk-awareness tool, not investment advice.
         </div>
       </div>
-
-      <section class="hero">
-        <h1>社群熱度股票風險儀表板</h1>
-        <p>
-          HeatScope 追蹤觀察池股票的社群討論熱度、股價動能與成交量異常，
-          以歷史回測選出的 confirmation-heavy 權重辨識可能的追高與回撤風險。
-        </p>
-
-        <div class="search-box">
-          <input id="searchInput" placeholder="輸入股票代號或名稱，例如 2454、聯發科、2308、MU、NVDA" />
-          <button id="searchBtn">查詢</button>
-        </div>
-
-        <div class="hint">
-          支援：美股 ticker、台股數字代號、台股中文名稱。台股不採用 Reddit 加權。
-        </div>
-      </section>
-    </header>
-
-    <main>
-      <section id="resultArea"></section>
-
-      <section class="grid">
-        <div class="card span-7">
-          <h2 class="section-title">目前觀察池熱度風險排行前 20</h2>
-          <div class="subtext">
-            依目前後端追蹤並可計算熱度風險分數的股票池排序，不代表全市場所有股票。
-          </div>
-          <div id="leaderboardArea" class="loading">載入排行榜中...</div>
-        </div>
-
-        <div class="card span-5">
-          <h2 class="section-title">目前版本</h2>
-          <div class="version-grid">
-            <div class="version-row">
-              <span>資料來源</span>
-              <span>Yahoo Finance + PTT + Reddit</span>
-            </div>
-            <div class="version-row">
-              <span>分析範圍</span>
-              <span>目前觀察池 + 可查詢個股</span>
-            </div>
-            <div class="version-row">
-              <span>核心指標</span>
-              <span>近一年社群熱度 Z-score</span>
-            </div>
-            <div class="version-row">
-              <span>區間定義</span>
-              <span>Z ≥ 2 觸發，Z ≥ 1 延長</span>
-            </div>
-            <div class="version-row">
-              <span>權重版本</span>
-              <span>confirmation_heavy_v1</span>
-            </div>
-            <div class="version-row">
-              <span>回測依據</span>
-              <span>6,069 筆歷史交易日樣本</span>
-            </div>
-            <div class="version-row">
-              <span>台股處理</span>
-              <span>不採用 Reddit 加權</span>
-            </div>
-          </div>
-
-          <div class="footer-note">
-            高分代表社群與市場訊號進入較高熱度風險，不是買進建議。
-            歷史回測主要驗證未來 20 個交易日內的回撤風險。
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
+    </footer>
+  </main>
 
   <script>
     const API_BASE = "https://heatscope-backend.replit.app/heatscope-api";
@@ -578,28 +1073,55 @@
       return `${value}${suffix}`;
     }
 
-    function levelClass(level) {
-      if (!level) return "risk-low";
-      if (level.includes("高")) return "risk-high";
-      if (level.includes("中")) return "risk-mid";
-      return "risk-low";
-    }
-
-    function riskLabel(level) {
-      if (!level) return "低熱度";
-      if (level.includes("高")) return "高熱度";
-      if (level.includes("中")) return "中熱度";
-      return "低熱度";
+    function fmtPct(value) {
+      if (value === null || value === undefined || Number.isNaN(value)) return "N/A";
+      if (typeof value === "string") return value;
+      return `${value.toFixed(1)}%`;
     }
 
     function safeText(value, fallback = "N/A") {
       return value === null || value === undefined || value === "" ? fallback : value;
     }
 
+    function levelClass(level) {
+      if (!level) return "badge-low";
+      const s = String(level).toLowerCase();
+      if (s.includes("高") || s.includes("high")) return "badge-high";
+      if (s.includes("中") || s.includes("medium")) return "badge-mid";
+      return "badge-low";
+    }
+
+    function riskLabel(level) {
+      if (!level) return "Low";
+      const s = String(level).toLowerCase();
+      if (s.includes("高") || s.includes("high")) return "High";
+      if (s.includes("中") || s.includes("medium")) return "Medium";
+      return "Low";
+    }
+
+    function sentimentText(data) {
+      return data?.sentiment_v1?.sentiment_label
+        || data?.sentiment_label
+        || data?.sentiment_observation
+        || "Signal unavailable";
+    }
+
+    function quadrantText(data) {
+      return data?.sentiment_heat_matrix?.quadrant
+        || data?.heat_sentiment_quadrant
+        || "Neutral Watch";
+    }
+
+    function riskHeadline(data) {
+      return data?.risk_reason_summary?.headline
+        || data?.risk_headline
+        || "Risk factors are being monitored.";
+    }
+
     async function fetchJson(url) {
       const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) {
-        throw new Error(`API 回應錯誤：${res.status}`);
+        throw new Error(`API error: ${res.status}`);
       }
       return await res.json();
     }
@@ -607,18 +1129,98 @@
     async function checkHealth() {
       try {
         await fetchJson(`${API_BASE}/health`);
+        $("apiStatus").innerHTML = `<span class="live-dot"></span><span>API Online</span>`;
       } catch (err) {
-        console.warn("Health check failed", err);
+        $("apiStatus").innerHTML = `<span style="width:8px;height:8px;border-radius:999px;background:var(--red);"></span><span>API Offline</span>`;
       }
     }
 
+    async function loadLeaderboard() {
+      const area = $("leaderboardArea");
+
+      try {
+        const data = await fetchJson(`${API_BASE}/api/watchlist/heat`);
+        renderLeaderboard(data);
+      } catch (err) {
+        area.innerHTML = `
+          <div class="error">
+            Failed to load leaderboard.<br />
+            ${err.message}
+          </div>
+        `;
+      }
+    }
+
+    function renderLeaderboard(data) {
+      const rows = data.leaderboard || [];
+      const desc = data.universe_description
+        || data.universe_scope_note
+        || "The leaderboard ranks the highest HeatScope heat scores from the current Yahoo Finance-compatible universe.";
+
+      $("universeDescription").innerHTML = `
+        ${desc}
+        <br />
+        <span class="muted">
+          Universe candidates: ${data.universe_total_candidates ?? data.universe_size ?? "N/A"} ·
+          Processed: ${data.universe_processed_count ?? data.processed_count ?? "N/A"} ·
+          Failed: ${data.universe_failed_count ?? data.failed ?? "N/A"} ·
+          Cache: ${data.cache_status ?? "N/A"}
+        </span>
+      `;
+
+      if (!rows.length) {
+        $("leaderboardArea").innerHTML = `<div class="loading">No leaderboard data available.</div>`;
+        return;
+      }
+
+      const html = `
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Ticker</th>
+                <th>Name</th>
+                <th>Score</th>
+                <th>Level</th>
+                <th>Sentiment</th>
+                <th>Matrix</th>
+                <th>Risk headline</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map((row, i) => `
+                <tr onclick="loadStock('${row.canonical_ticker}')">
+                  <td class="rank">${row.rank ?? i + 1}</td>
+                  <td class="ticker">${safeText(row.canonical_ticker)}</td>
+                  <td class="muted">${safeText(row.display_name)}</td>
+                  <td><strong>${fmt(row.heat_score)}</strong></td>
+                  <td><span class="badge ${levelClass(row.heat_level)}">${riskLabel(row.heat_level)}</span></td>
+                  <td><span class="badge badge-neutral">${safeText(sentimentText(row))}</span></td>
+                  <td class="muted">${safeText(quadrantText(row))}</td>
+                  <td class="muted">${safeText(riskHeadline(row))}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="fine-print">
+          Displaying top ${data.leaderboard_limit ?? 20} by HeatScope heat_score.
+          Ranking is not investment advice.
+        </div>
+      `;
+
+      $("leaderboardArea").innerHTML = html;
+    }
+
     async function loadStock(query) {
-      const q = encodeURIComponent(query.trim());
+      const q = encodeURIComponent(String(query || "").trim());
       if (!q) return;
 
       $("searchBtn").disabled = true;
-      $("searchBtn").textContent = "查詢中";
-      $("resultArea").innerHTML = `<div class="card span-12 loading">正在載入 ${query} 的資料...</div>`;
+      $("searchBtn").textContent = "Analyzing...";
+      $("resultArea").innerHTML = `<div class="loading">Loading ${query}...</div>`;
 
       try {
         const data = await fetchJson(`${API_BASE}/api/stock/${q}`);
@@ -626,14 +1228,14 @@
       } catch (err) {
         $("resultArea").innerHTML = `
           <div class="error">
-            無法載入 ${query} 詳細資料。<br />
-            可能原因：標的不存在、API 暫時失敗，或資料來源尚未支援。<br />
-            錯誤訊息：${err.message}
+            Failed to load ${query}.<br />
+            The ticker may be unsupported, temporarily unavailable, or missing required data.<br />
+            ${err.message}
           </div>
         `;
       } finally {
         $("searchBtn").disabled = false;
-        $("searchBtn").textContent = "查詢";
+        $("searchBtn").textContent = "Analyze";
       }
     }
 
@@ -643,20 +1245,31 @@
       const social = data.social_index || {};
       const components = data.score_components || {};
       const flags = data.raw_flags || {};
-      const rawWeightVersion = flags.heat_risk_score_weight_version || "confirmation_heavy_v1";
+      const sentiment = data.sentiment_v1 || {};
+      const matrix = data.sentiment_heat_matrix || {};
+      const reasons = data.risk_reason_summary || {};
+      const weightVersion = flags.heat_risk_score_weight_version || data.heat_risk_score_weight_version || "confirmation_heavy_v1";
+
+      const reasonItems = Array.isArray(reasons.reasons) && reasons.reasons.length
+        ? reasons.reasons
+        : [
+          riskHeadline(data),
+          "HeatScope compares social attention with price and volume confirmation.",
+          "High scores should be interpreted as overheating risk, not as buy signals."
+        ];
 
       const resultHtml = `
-        <section class="result-head">
+        <div class="result-head">
           <div>
-            <h2 class="stock-title">${safeText(data.canonical_ticker)} ・ ${safeText(data.display_name)}</h2>
-            <div class="stock-subtitle">${safeText(data.sentiment_observation, "社群與市場訊號仍待觀察。")}</div>
+            <h2 class="stock-title">${safeText(data.canonical_ticker)} · ${safeText(data.display_name)}</h2>
+            <div class="stock-subtitle">${safeText(riskHeadline(data), data.sentiment_observation || "Signals are being monitored.")}</div>
           </div>
-          <span class="risk-badge ${levelClass(data.heat_level)}">${riskLabel(data.heat_level)}</span>
-        </section>
+          <span class="badge ${levelClass(data.heat_level)}">${riskLabel(data.heat_level)} Risk</span>
+        </div>
 
-        <section class="grid">
+        <div class="grid">
           <div class="card span-3">
-            <div class="small-title">綜合熱度風險</div>
+            <div class="small-title">Heat Risk Score</div>
             <div class="big-number" style="color:${score >= 70 ? "var(--red)" : score >= 40 ? "var(--yellow)" : "var(--green)"}">
               ${fmt(score)}
             </div>
@@ -668,109 +1281,74 @@
               <span>${fmt(score)} / 100</span>
               <span>100</span>
             </div>
-            <div class="subtext">依分數所在位置對應綠 → 黃 → 紅色帶</div>
+            <div class="subtext">Higher score means stronger overheating and drawdown-risk signal.</div>
           </div>
 
           <div class="card span-3">
-            <div class="small-title">目前狀態</div>
-            <div class="big-number" style="font-size:28px;">${safeText(data.current_status)}</div>
-            <div class="subtext">以社群熱度 Z-score 訊號的 5 交易日有效期判斷</div>
+            <div class="small-title">Current Status</div>
+            <div class="big-number" style="font-size: 28px;">${safeText(data.current_status)}</div>
+            <div class="subtext">High-heat periods are triggered by social heat Z-score.</div>
           </div>
 
           <div class="card span-3">
-            <div class="small-title">社群高熱度區間</div>
-            <div class="big-number" style="font-size:27px;">
-              ${safeText(market.period_start)}${market.period_end ? " ~ " + market.period_end : ""}
+            <div class="small-title">Sentiment</div>
+            <div class="big-number" style="font-size: 28px;">${safeText(sentiment.sentiment_label, sentimentText(data))}</div>
+            <div class="subtext">
+              Positive ${fmt((sentiment.positive_ratio ?? 0) * 100)}% ·
+              Negative ${fmt((sentiment.negative_ratio ?? 0) * 100)}%
             </div>
-            <div class="subtext">Z ≥ 2 觸發；區間內 Z ≥ 1 延長</div>
           </div>
 
           <div class="card span-3">
-            <div class="small-title">區間狀態</div>
-            <div class="big-number" style="font-size:30px;">
-              ${market.period_status === "ongoing" ? "進行中" : market.period_status === "completed" ? "已結束" : "N/A"}
-            </div>
-            <div class="subtext">區間持續：${fmt(data.high_heat_duration_days, " 天")}</div>
+            <div class="small-title">Heat Matrix</div>
+            <div class="big-number" style="font-size: 27px;">${safeText(matrix.quadrant, quadrantText(data))}</div>
+            <div class="subtext">${safeText(matrix.description, "Classifies heat level and sentiment direction.")}</div>
           </div>
 
           <div class="card span-7">
-            <h2 class="section-title">Social Heat × Price</h2>
+            <h3 style="margin-top: 0; font-size: 24px;">Social Heat × Price</h3>
             <div class="chart-wrap">
               <canvas id="stockChart"></canvas>
             </div>
             <div class="subtext">
-              橘線為標準化社群熱度；藍線為標準化股價走勢；紅色區段為社群高熱度期間。
+              Orange line: social heat. Blue line: normalized price. Red shaded areas: high social-heat periods.
             </div>
           </div>
 
           <div class="card span-5">
-            <h2 class="section-title">標準化熱度與區間摘要</h2>
+            <h3 style="margin-top: 0; font-size: 24px;">Market & Social Summary</h3>
             <div class="metric-list">
-              <div class="metric-row">
-                <span>社群熱度指數</span>
-                <span>${fmt(social.overall)} / 100</span>
-              </div>
-              <div class="metric-row">
-                <span>最新社群 Z-score</span>
-                <span>${fmt(flags.latest_social_heat_zscore)}</span>
-              </div>
-              <div class="metric-row">
-                <span>PTT 近 14 日熱度貢獻</span>
-                <span>${fmt(social.ptt_contribution)} / 100</span>
-              </div>
-              <div class="metric-row">
-                <span>Reddit 近 14 日熱度貢獻</span>
-                <span>${data.raw_flags?.market_type === "taiwan" ? "台股不採用" : fmt(social.reddit_contribution) + " / 100"}</span>
-              </div>
-              <div class="metric-row">
-                <span>社群討論趨勢</span>
-                <span>${safeText(social.trend)}</span>
-              </div>
-              <div class="metric-row">
-                <span>社群高熱度區間累積報酬率</span>
-                <span>${fmt(market.cumulative_return_pct, "%")}</span>
-              </div>
-              <div class="metric-row">
-                <span>平均成交量變化</span>
-                <span>${fmt(market.avg_volume_change_pct, "%")}</span>
-              </div>
-              <div class="metric-row">
-                <span>權重版本</span>
-                <span>${rawWeightVersion}</span>
-              </div>
+              <div class="metric-row"><span>Social heat</span><span>${fmt(social.overall)} / 100</span></div>
+              <div class="metric-row"><span>Latest Z-score</span><span>${fmt(flags.latest_social_heat_zscore)}</span></div>
+              <div class="metric-row"><span>PTT contribution</span><span>${fmt(social.ptt_contribution)} / 100</span></div>
+              <div class="metric-row"><span>Reddit contribution</span><span>${flags.market_type === "taiwan" ? "Skipped for Taiwan" : fmt(social.reddit_contribution) + " / 100"}</span></div>
+              <div class="metric-row"><span>High-heat period</span><span>${safeText(market.period_start)} ~ ${safeText(market.period_end)}</span></div>
+              <div class="metric-row"><span>Period return</span><span>${fmtPct(market.cumulative_return_pct)}</span></div>
+              <div class="metric-row"><span>Volume change</span><span>${fmtPct(market.avg_volume_change_pct)}</span></div>
+              <div class="metric-row"><span>Weight version</span><span>${safeText(weightVersion)}</span></div>
             </div>
           </div>
 
-          <div class="card span-12">
-            <h2 class="section-title">分數組成</h2>
-            <div class="two-col">
-              <div class="info-block">
-                <strong>${fmt((components.attention ?? 0) * 100)}%</strong>
-                <span>Attention：社群熱度 Z-score 異常程度</span>
-              </div>
-              <div class="info-block">
-                <strong>${fmt((components.duration ?? 0) * 100)}%</strong>
-                <span>Duration：高熱度區間持續性</span>
-              </div>
-              <div class="info-block">
-                <strong>${fmt((components.acceleration ?? 0) * 100)}%</strong>
-                <span>Acceleration：社群熱度升溫速度</span>
-              </div>
-              <div class="info-block">
-                <strong>${fmt((components.price ?? 0) * 100)}%</strong>
-                <span>Price：股價近期動能</span>
-              </div>
-              <div class="info-block">
-                <strong>${fmt((components.volume ?? 0) * 100)}%</strong>
-                <span>Volume：成交量異常程度</span>
-              </div>
-              <div class="info-block">
-                <strong>${fmt((components.available_weight_sum ?? 0) * 100)}%</strong>
-                <span>Available Weight：缺少融資或題材資料時重新正規化</span>
-              </div>
+          <div class="card span-6">
+            <h3 style="margin-top: 0; font-size: 24px;">Why This Score?</h3>
+            <ul class="reason-list">
+              ${reasonItems.map(r => `<li>${safeText(r)}</li>`).join("")}
+            </ul>
+            <div class="fine-print">${safeText(reasons.risk_interpretation, "This score is a risk-awareness signal, not investment advice.")}</div>
+          </div>
+
+          <div class="card span-6">
+            <h3 style="margin-top: 0; font-size: 24px;">Score Components</h3>
+            <div class="info-grid">
+              <div class="info-block"><strong>${fmt((components.attention ?? 0) * 100)}%</strong><span>Attention</span></div>
+              <div class="info-block"><strong>${fmt((components.duration ?? 0) * 100)}%</strong><span>Duration</span></div>
+              <div class="info-block"><strong>${fmt((components.acceleration ?? 0) * 100)}%</strong><span>Acceleration</span></div>
+              <div class="info-block"><strong>${fmt((components.price ?? 0) * 100)}%</strong><span>Price momentum</span></div>
+              <div class="info-block"><strong>${fmt((components.volume ?? 0) * 100)}%</strong><span>Volume anomaly</span></div>
+              <div class="info-block"><strong>${fmt((components.available_weight_sum ?? 0) * 100)}%</strong><span>Available weight</span></div>
             </div>
           </div>
-        </section>
+        </div>
       `;
 
       $("resultArea").innerHTML = resultHtml;
@@ -787,6 +1365,7 @@
       const validClose = close.filter(v => v !== null && v !== undefined);
       const minClose = validClose.length ? Math.min(...validClose) : 0;
       const maxClose = validClose.length ? Math.max(...validClose) : 1;
+
       const priceNorm = close.map(v => {
         if (v === null || v === undefined || maxClose === minClose) return null;
         return ((v - minClose) / (maxClose - minClose)) * 100;
@@ -802,7 +1381,7 @@
           labels,
           datasets: [
             {
-              label: "社群熱度",
+              label: "Social heat",
               data: heat,
               borderColor: "#ff9d4d",
               backgroundColor: "rgba(255,157,77,0.08)",
@@ -812,7 +1391,7 @@
               yAxisID: "y"
             },
             {
-              label: "股價趨勢（標準化）",
+              label: "Price trend, normalized",
               data: priceNorm,
               borderColor: "#73a8ff",
               backgroundColor: "rgba(115,168,255,0.08)",
@@ -822,9 +1401,9 @@
               yAxisID: "y"
             },
             {
-              label: "社群高熱度區間",
+              label: "High-heat period",
               data: highHeat,
-              borderColor: "rgba(255,107,122,0.0)",
+              borderColor: "rgba(255,107,122,0)",
               backgroundColor: "rgba(255,107,122,0.22)",
               pointRadius: 0,
               fill: true,
@@ -836,10 +1415,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          interaction: {
-            mode: "index",
-            intersect: false
-          },
+          interaction: { mode: "index", intersect: false },
           plugins: {
             legend: {
               labels: {
@@ -854,8 +1430,8 @@
                   const row = chart[idx];
                   return [
                     `Z-score: ${row.social_heat_zscore ?? "N/A"}`,
-                    `收盤價: ${row.close ?? "N/A"}`,
-                    `高熱度區間: ${row.is_high_heat_period ? "是" : "否"}`
+                    `Close: ${row.close ?? "N/A"}`,
+                    `High heat: ${row.is_high_heat_period ? "Yes" : "No"}`
                   ];
                 }
               }
@@ -863,81 +1439,53 @@
           },
           scales: {
             x: {
-              ticks: {
-                color: "#aebcf7",
-                maxTicksLimit: 6
-              },
-              grid: {
-                color: "rgba(255,255,255,0.06)"
-              }
+              ticks: { color: "#aebcf7", maxTicksLimit: 6 },
+              grid: { color: "rgba(255,255,255,0.06)" }
             },
             y: {
               min: 0,
               max: 100,
-              ticks: {
-                color: "#aebcf7"
-              },
-              grid: {
-                color: "rgba(255,255,255,0.08)"
-              }
+              ticks: { color: "#aebcf7" },
+              grid: { color: "rgba(255,255,255,0.08)" }
             }
           }
         }
       });
     }
 
-    async function loadLeaderboard() {
+    async function loadBacktestSummary() {
       try {
-        const data = await fetchJson(`${API_BASE}/api/watchlist/heat`);
-        renderLeaderboard(data);
-      } catch (err) {
-        $("leaderboardArea").innerHTML = `
-          <div class="error">
-            排行榜載入失敗。<br />
-            錯誤訊息：${err.message}
+        const data = await fetchJson(`${API_BASE}/api/backtest/summary`);
+        const cards = $("backtestCards");
+
+        cards.innerHTML = `
+          <div class="card span-3">
+            <div class="small-title">Observations</div>
+            <div class="big-number">${safeText(data.backtest_observations, "6,069")}</div>
+            <div class="subtext">Historical trading-day rows</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Hit rate</div>
+            <div class="big-number" style="color: var(--yellow);">${safeText(data.hit_rate_20d_drawdown_minus_5pct, "81.09%")}</div>
+            <div class="subtext">20-day -5% drawdown after high-risk signals</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Avg. max drawdown</div>
+            <div class="big-number" style="color: var(--red);">${safeText(data.average_20d_max_drawdown, "-14.08%")}</div>
+            <div class="subtext">Average 20-day max drawdown</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Weight version</div>
+            <div class="big-number" style="font-size: 25px;">${safeText(data.weight_version, "confirmation_heavy_v1")}</div>
+            <div class="subtext">${safeText(data.interpretation, "Overheating and drawdown-risk warning system.")}</div>
           </div>
         `;
+      } catch (err) {
+        console.warn("Backtest summary unavailable", err);
       }
-    }
-
-    function renderLeaderboard(data) {
-      const rows = data.leaderboard || [];
-      if (!rows.length) {
-        $("leaderboardArea").innerHTML = `<div class="loading">目前沒有排行榜資料。</div>`;
-        return;
-      }
-
-      const html = `
-        <table class="leaderboard">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>股票</th>
-              <th>名稱</th>
-              <th>分數</th>
-              <th>等級</th>
-              <th>狀態</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.map(row => `
-              <tr onclick="loadStock('${row.canonical_ticker}')">
-                <td class="rank">${row.rank ?? ""}</td>
-                <td class="ticker">${row.canonical_ticker}</td>
-                <td class="muted">${row.display_name}</td>
-                <td><strong>${fmt(row.heat_score)}</strong></td>
-                <td><span class="risk-badge ${levelClass(row.heat_level)}">${riskLabel(row.heat_level)}</span></td>
-                <td class="muted">${row.current_status}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-        <div class="footer-note">
-          目前觀察池共 ${data.universe_size ?? "N/A"} 檔，排行榜顯示前 ${data.leaderboard_limit ?? 20} 檔。
-        </div>
-      `;
-
-      $("leaderboardArea").innerHTML = html;
     }
 
     $("searchBtn").addEventListener("click", () => {
@@ -949,8 +1497,9 @@
     });
 
     checkHealth();
+    loadBacktestSummary();
     loadLeaderboard();
-    loadStock("2454");
+    loadStock("NVDA");
   </script>
 </body>
 </html>
