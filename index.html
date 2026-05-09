@@ -10,8 +10,8 @@
     :root {
       --bg: #080c1a;
       --bg2: #0d1328;
-      --panel: rgba(18, 27, 57, 0.86);
-      --panel2: rgba(27, 39, 78, 0.86);
+      --panel: rgba(18, 27, 57, 0.88);
+      --panel2: rgba(27, 39, 78, 0.88);
       --line: rgba(255, 255, 255, 0.11);
       --text: #f6f8ff;
       --muted: #a9b8ee;
@@ -25,7 +25,7 @@
       --purple: #b087ff;
       --shadow: 0 20px 70px rgba(0, 0, 0, 0.38);
       --radius: 24px;
-      --radius2: 32px;
+      --radius2: 34px;
     }
 
     * {
@@ -63,7 +63,7 @@
       top: 0;
       z-index: 50;
       backdrop-filter: blur(18px);
-      background: rgba(8, 12, 26, 0.74);
+      background: rgba(8, 12, 26, 0.76);
       border-bottom: 1px solid var(--line);
     }
 
@@ -74,7 +74,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 18px;
-      padding: 16px 0;
+      padding: 15px 0;
     }
 
     .logo {
@@ -97,10 +97,10 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 16px;
       color: var(--muted);
-      font-size: 14px;
-      font-weight: 800;
+      font-size: 13px;
+      font-weight: 850;
     }
 
     .nav-links a:hover {
@@ -117,7 +117,7 @@
       padding: 8px 12px;
       border-radius: 999px;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 850;
       white-space: nowrap;
     }
 
@@ -141,10 +141,10 @@
     }
 
     .hero-card {
-      background: linear-gradient(180deg, rgba(18, 27, 57, 0.92), rgba(16, 22, 45, 0.84));
+      background: linear-gradient(180deg, rgba(18, 27, 57, 0.94), rgba(16, 22, 45, 0.86));
       border: 1px solid var(--line);
       border-radius: var(--radius2);
-      padding: clamp(28px, 4.8vw, 54px);
+      padding: clamp(30px, 4.8vw, 56px);
       box-shadow: var(--shadow);
       overflow: hidden;
       position: relative;
@@ -172,7 +172,7 @@
     }
 
     h1 {
-      font-size: clamp(46px, 7.2vw, 88px);
+      font-size: clamp(48px, 7.2vw, 92px);
       line-height: 0.94;
       letter-spacing: -0.075em;
       margin: 0 0 20px;
@@ -222,8 +222,7 @@
     }
 
     .hero-metric-card {
-      background:
-        linear-gradient(180deg, rgba(27, 39, 78, 0.88), rgba(14, 20, 42, 0.86));
+      background: linear-gradient(180deg, rgba(27, 39, 78, 0.9), rgba(14, 20, 42, 0.88));
       border: 1px solid var(--line);
       border-radius: var(--radius2);
       padding: 28px;
@@ -255,9 +254,10 @@
       letter-spacing: -0.055em;
     }
 
-    .metric-value.red { color: var(--red); }
-    .metric-value.green { color: var(--green); }
-    .metric-value.yellow { color: var(--yellow); }
+    .red { color: var(--red); }
+    .green { color: var(--green); }
+    .yellow { color: var(--yellow); }
+    .blue { color: var(--blue); }
 
     section {
       padding: 34px 0;
@@ -272,7 +272,7 @@
     }
 
     .section-title {
-      font-size: clamp(28px, 4vw, 46px);
+      font-size: clamp(30px, 4vw, 48px);
       line-height: 1.05;
       margin: 0;
       letter-spacing: -0.055em;
@@ -281,7 +281,7 @@
     .section-desc {
       color: var(--muted);
       font-size: 16px;
-      max-width: 720px;
+      max-width: 780px;
       margin: 10px 0 0;
     }
 
@@ -641,6 +641,49 @@
       font-weight: 900;
     }
 
+    .pricing-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 100%;
+    }
+
+    .price {
+      font-size: 34px;
+      font-weight: 1000;
+      letter-spacing: -0.055em;
+    }
+
+    .pricing-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pricing-list li {
+      margin: 7px 0;
+    }
+
+    .compare-table td:nth-child(4) {
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .allocation-bar {
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      background: rgba(255, 255, 255, 0.08);
+      margin-top: 12px;
+    }
+
+    .allocation-bar span {
+      display: block;
+      height: 100%;
+    }
+
     .footer {
       padding: 50px 0 70px;
       color: var(--muted2);
@@ -706,14 +749,15 @@
       <div class="nav-links">
         <a href="#problem">Problem</a>
         <a href="#solution">Solution</a>
-        <a href="#system">Live System</a>
-        <a href="#backtest">Backtest</a>
-        <a href="#method">Methodology</a>
+        <a href="#system">Demo</a>
+        <a href="#traction">Traction</a>
+        <a href="#business">Business</a>
+        <a href="#funding">Funding</a>
       </div>
 
       <div class="pill">
         <span class="live-dot"></span>
-        <span>Live API</span>
+        <span>Live MVP</span>
       </div>
     </div>
   </nav>
@@ -726,19 +770,19 @@
             <div class="eyebrow">Social attention × market risk</div>
             <h1>HeatScope</h1>
             <p class="hero-sub">
-              A social heat risk dashboard that tracks attention, momentum, volume anomalies,
-              and sentiment signals to identify stocks entering overheated and drawdown-prone zones.
+              HeatScope is a social heat risk dashboard that turns fragmented market attention,
+              price momentum, volume anomalies, and sentiment signals into explainable drawdown-risk warnings.
             </p>
 
             <div class="cta-row">
-              <a class="btn btn-primary" href="#system">View Live Ranking</a>
-              <a class="btn btn-secondary" href="#stock-demo">Search a Stock</a>
+              <a class="btn btn-primary" href="#system">View Live Product</a>
               <a class="btn btn-secondary" href="#backtest">Backtest Evidence</a>
+              <a class="btn btn-secondary" href="#funding">Investment Case</a>
             </div>
 
             <div class="fine-print">
               Individual lookup supports Yahoo Finance-searchable U.S. and Taiwan stocks when data is available.
-              The leaderboard displays the current cached top heat-risk stocks from the supported universe.
+              The leaderboard displays the cached top heat-risk stocks from the supported universe.
             </div>
           </div>
 
@@ -746,7 +790,7 @@
             <div class="metric-big">
               <div class="metric-label">Risk objective</div>
               <div class="metric-value red">Drawdown</div>
-              <div class="subtext">Calibrated as an overheating and pullback-risk warning system, not a buy signal.</div>
+              <div class="subtext">Built as an overheating and pullback-risk warning system, not a buy signal.</div>
             </div>
 
             <div class="metric-big">
@@ -756,9 +800,9 @@
             </div>
 
             <div class="metric-big">
-              <div class="metric-label">Production weights</div>
-              <div class="metric-value green">v1</div>
-              <div class="subtext">confirmation_heavy_v1 emphasizes market confirmation with social attention.</div>
+              <div class="metric-label">Funding ask</div>
+              <div class="metric-value green">$500K</div>
+              <div class="subtext">Pre-seed ask for 18 months of product, data, and growth runway.</div>
             </div>
           </div>
         </div>
@@ -771,9 +815,8 @@
           <div>
             <h2 class="section-title">Investors see hype before they see risk.</h2>
             <p class="section-desc">
-              Social media can make a stock feel unavoidable. But when attention, price momentum,
-              and trading activity rise together, the same excitement may also signal crowding,
-              FOMO, and future drawdown risk.
+              Retail investors are surrounded by social media signals, but most tools only show price charts,
+              headlines, or raw discussion threads. HeatScope solves the missing layer: measuring when social attention itself becomes a risk signal.
             </p>
           </div>
         </div>
@@ -781,20 +824,20 @@
         <div class="grid">
           <div class="card feature-card span-4">
             <div class="icon">01</div>
-            <h3>Attention is fragmented</h3>
-            <p>Discussions are scattered across PTT, Reddit, news headlines, and ticker aliases.</p>
+            <h3>Social attention is fragmented</h3>
+            <p>Discussions are scattered across PTT, Reddit, ticker aliases, company names, and different languages.</p>
           </div>
 
           <div class="card feature-card span-4">
             <div class="icon">02</div>
             <h3>Heat is not always bullish</h3>
-            <p>A spike in discussion can come from good news, panic, disappointment, or speculation.</p>
+            <p>A discussion spike may come from a breakthrough, panic, disappointment, or pure speculation.</p>
           </div>
 
           <div class="card feature-card span-4">
             <div class="icon">03</div>
-            <h3>Chasing heat is risky</h3>
-            <p>High social heat often appears after large price moves, when pullback risk may already be elevated.</p>
+            <h3>FOMO creates hidden drawdown risk</h3>
+            <p>By the time a stock becomes socially unavoidable, the risk of chasing after a crowded move may already be elevated.</p>
           </div>
         </div>
       </div>
@@ -804,10 +847,10 @@
       <div class="wrap">
         <div class="section-head">
           <div>
-            <h2 class="section-title">HeatScope turns market attention into risk signals.</h2>
+            <h2 class="section-title">HeatScope converts attention into explainable risk signals.</h2>
             <p class="section-desc">
-              The system combines social heat, abnormality relative to each stock’s own history,
-              price momentum, volume confirmation, sentiment, and explainable risk summaries.
+              The product combines social heat, abnormality relative to each stock’s own history,
+              price momentum, volume confirmation, sentiment, and risk explanations into a single heat_score.
             </p>
           </div>
         </div>
@@ -822,19 +865,19 @@
           <div class="card feature-card span-3">
             <div class="icon">P</div>
             <h3>Price confirmation</h3>
-            <p>Detects whether strong market attention is accompanied by recent price momentum.</p>
+            <p>Checks whether social heat is accompanied by recent price momentum.</p>
           </div>
 
           <div class="card feature-card span-3">
             <div class="icon">V</div>
             <h3>Volume anomaly</h3>
-            <p>Checks whether market participation is rising together with social attention.</p>
+            <p>Detects whether trading participation is rising together with attention.</p>
           </div>
 
           <div class="card feature-card span-3">
             <div class="icon">S</div>
             <h3>Sentiment matrix</h3>
-            <p>Separates positive heat, negative heat, panic-style heat, and neutral observation.</p>
+            <p>Classifies positive heat, negative heat, panic-style heat, and neutral watch states.</p>
           </div>
         </div>
       </div>
@@ -844,10 +887,10 @@
       <div class="wrap">
         <div class="section-head">
           <div>
-            <h2 class="section-title">Live HeatScope System</h2>
+            <h2 class="section-title">Live Product Demo</h2>
             <p class="section-desc">
-              Top 20 heat-risk stocks from the currently scanned and cached Yahoo Finance-compatible universe.
-              The leaderboard is ranked by HeatScope heat_score, not by market cap.
+              The dashboard shows the top heat-risk stocks from the currently scanned and cached Yahoo Finance-compatible universe.
+              Individual search supports additional U.S. and Taiwan tickers when data is available.
             </p>
           </div>
           <div class="pill" id="apiStatus">
@@ -893,6 +936,45 @@
       </div>
     </section>
 
+    <section id="traction">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Traction</h2>
+            <p class="section-desc">
+              Current traction is prototype-stage and validation-driven. User and revenue metrics are forward-looking business assumptions.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card span-3">
+            <div class="small-title">Live MVP</div>
+            <div class="big-number green">Deployed</div>
+            <div class="subtext">FastAPI backend, GitHub Pages frontend, live API queries, and interactive charting.</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Backtest sample</div>
+            <div class="big-number">6,069</div>
+            <div class="subtext">Historical trading-day observations used to validate risk behavior.</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Risk hit rate</div>
+            <div class="big-number yellow">81.09%</div>
+            <div class="subtext">High-risk signals followed by at least -5% drawdown within 20 trading days.</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Universe scan</div>
+            <div class="big-number blue">559</div>
+            <div class="subtext">Pilot-stage cached ticker universe across U.S. and Taiwan coverage.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="backtest">
       <div class="wrap">
         <div class="section-head">
@@ -914,20 +996,283 @@
 
           <div class="card span-3">
             <div class="small-title">Hit rate</div>
-            <div class="big-number" style="color: var(--yellow);">81.09%</div>
+            <div class="big-number yellow">81.09%</div>
             <div class="subtext">20-day -5% drawdown after high-risk signals</div>
           </div>
 
           <div class="card span-3">
             <div class="small-title">Avg. max drawdown</div>
-            <div class="big-number" style="color: var(--red);">-14.08%</div>
+            <div class="big-number red">-14.08%</div>
             <div class="subtext">Average 20-day max drawdown</div>
           </div>
 
           <div class="card span-3">
             <div class="small-title">Weight version</div>
-            <div class="big-number" style="font-size: 28px;">confirmation</div>
+            <div class="big-number" style="font-size: 28px;">v1</div>
             <div class="subtext">confirmation_heavy_v1</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="business">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Business Model</h2>
+            <p class="section-desc">
+              A freemium analytics product for retail investors, active traders, investment communities, and financial content creators.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card pricing-card span-3">
+            <div>
+              <div class="small-title">Free</div>
+              <div class="price">$0<span class="muted" style="font-size: 15px;"> / month</span></div>
+            </div>
+            <ul class="pricing-list">
+              <li>Limited stock searches</li>
+              <li>Delayed leaderboard</li>
+              <li>Basic heat_score</li>
+              <li>Public demo access</li>
+            </ul>
+          </div>
+
+          <div class="card pricing-card span-3">
+            <div>
+              <div class="small-title">Pro</div>
+              <div class="price">$19<span class="muted" style="font-size: 15px;"> / month</span></div>
+            </div>
+            <ul class="pricing-list">
+              <li>Unlimited stock lookup</li>
+              <li>Real-time heat-risk leaderboard</li>
+              <li>Sentiment matrix</li>
+              <li>Risk reason explanation</li>
+            </ul>
+          </div>
+
+          <div class="card pricing-card span-3">
+            <div>
+              <div class="small-title">Investor Pro</div>
+              <div class="price">$49<span class="muted" style="font-size: 15px;"> / month</span></div>
+            </div>
+            <ul class="pricing-list">
+              <li>Multi-market watchlists</li>
+              <li>Advanced backtest view</li>
+              <li>Exportable risk reports</li>
+              <li>Custom alert thresholds</li>
+            </ul>
+          </div>
+
+          <div class="card pricing-card span-3">
+            <div>
+              <div class="small-title">Team / API</div>
+              <div class="price">$499+<span class="muted" style="font-size: 15px;"> / month</span></div>
+            </div>
+            <ul class="pricing-list">
+              <li>API access</li>
+              <li>Team dashboards</li>
+              <li>Custom universe scanning</li>
+              <li>Data export</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <div class="grid">
+            <div class="span-4">
+              <div class="small-title">Estimated gross margin</div>
+              <div class="big-number green">75–85%</div>
+              <div class="subtext">Illustrative projection based on subscription software economics.</div>
+            </div>
+            <div class="span-8">
+              <div class="small-title">Main cost drivers</div>
+              <div class="chips">
+                <span class="chip">Cloud deployment</span>
+                <span class="chip">Data processing</span>
+                <span class="chip">API usage</span>
+                <span class="chip">Social crawling</span>
+                <span class="chip">Model improvement</span>
+                <span class="chip">Customer support</span>
+              </div>
+              <div class="fine-print">All commercial figures are internal assumptions for pitch modeling, not audited financial results.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="market">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Market Opportunity</h2>
+            <p class="section-desc">
+              Social-media-driven investing has created demand for tools that help retail investors understand not only price movement,
+              but also attention risk and crowding risk.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card span-4">
+            <div class="small-title">TAM</div>
+            <div class="big-number blue">$8.5B</div>
+            <div class="subtext">Illustrative global market for retail trading tools, sentiment analytics, investment data, and personal market intelligence platforms.</div>
+          </div>
+
+          <div class="card span-4">
+            <div class="small-title">SAM</div>
+            <div class="big-number yellow">$1.2B</div>
+            <div class="subtext">Estimated serviceable market among English- and Chinese-speaking active retail investors using web-based analytics tools.</div>
+          </div>
+
+          <div class="card span-4">
+            <div class="small-title">SOM</div>
+            <div class="big-number green">$24M</div>
+            <div class="subtext">Three-year obtainable market assumption based on 100,000 paying users at blended annual revenue of $240.</div>
+          </div>
+        </div>
+
+        <div class="fine-print">
+          Market figures are internal assumptions for pitch modeling and should be refined with third-party market research before fundraising.
+        </div>
+      </div>
+    </section>
+
+    <section id="financials">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Financial Projection</h2>
+            <p class="section-desc">
+              Illustrative 3-year model based on freemium conversion, subscription revenue, and early API / team plans.
+            </p>
+          </div>
+        </div>
+
+        <div class="card table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Registered Users</th>
+                <th>Paid Users</th>
+                <th>Conversion</th>
+                <th>ARR</th>
+                <th>Gross Margin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="ticker">Year 1</td>
+                <td>15,000</td>
+                <td>600</td>
+                <td>4.0%</td>
+                <td>$144K</td>
+                <td>75%</td>
+              </tr>
+              <tr>
+                <td class="ticker">Year 2</td>
+                <td>80,000</td>
+                <td>4,800</td>
+                <td>6.0%</td>
+                <td>$1.38M</td>
+                <td>80%</td>
+              </tr>
+              <tr>
+                <td class="ticker">Year 3</td>
+                <td>300,000</td>
+                <td>24,000</td>
+                <td>8.0%</td>
+                <td>$7.20M</td>
+                <td>84%</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="fine-print">
+            Assumptions: blended paid ARPU of $25/month, subscription-first revenue, and API / team revenue beginning in Year 2.
+            Figures are illustrative projections, not actual financial results.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="competition">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Competitive Advantage</h2>
+            <p class="section-desc">
+              HeatScope is not another price chart. It focuses on social overheating, sentiment context, and drawdown-risk explanation.
+            </p>
+          </div>
+        </div>
+
+        <div class="card table-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Alternative</th>
+                <th>What they do</th>
+                <th>Gap</th>
+                <th>HeatScope advantage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="ticker">Yahoo Finance</td>
+                <td>Prices, charts, financial news, and basic company data.</td>
+                <td>Does not quantify social overheating or drawdown-risk zones.</td>
+                <td>Turns social heat and market confirmation into an explainable risk score.</td>
+              </tr>
+              <tr>
+                <td class="ticker">TradingView</td>
+                <td>Powerful technical charting and community ideas.</td>
+                <td>Focuses on charts, not crowd attention abnormality.</td>
+                <td>Adds social heat Z-score, sentiment state, and risk reason summaries.</td>
+              </tr>
+              <tr>
+                <td class="ticker">StockTwits / Reddit</td>
+                <td>Raw community discussion and sentiment-like chatter.</td>
+                <td>Discussion is noisy and not converted into structured risk signals.</td>
+                <td>Converts discussion into measurable heat, trend, and risk metrics.</td>
+              </tr>
+              <tr>
+                <td class="ticker">News sentiment tools</td>
+                <td>Institutional-style sentiment or event analytics.</td>
+                <td>Often expensive, opaque, and not designed for retail workflows.</td>
+                <td>Retail-friendly, explainable, stock-level, and web-native.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid" style="margin-top: 16px;">
+          <div class="card span-3">
+            <div class="small-title">Advantage 1</div>
+            <div class="big-number blue">Explainable</div>
+            <div class="subtext">Every score is broken down into attention, duration, acceleration, price, volume, and sentiment signals.</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Advantage 2</div>
+            <div class="big-number yellow">Risk-first</div>
+            <div class="subtext">Designed to warn about overheating and drawdown risk, not to chase social hype.</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Advantage 3</div>
+            <div class="big-number green">Backtested</div>
+            <div class="subtext">Weighting was selected using historical drawdown-risk behavior rather than subjective scoring only.</div>
+          </div>
+
+          <div class="card span-3">
+            <div class="small-title">Advantage 4</div>
+            <div class="big-number red">Cross-market</div>
+            <div class="subtext">Built to support both U.S. and Taiwan tickers through Yahoo Finance-compatible lookup.</div>
           </div>
         </div>
       </div>
@@ -971,6 +1316,98 @@
               <span class="chip">5 trading-day validity</span>
               <span class="chip">1-year baseline</span>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="team">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Team</h2>
+            <p class="section-desc">
+              Built at the intersection of finance, statistics, software prototyping, and product design.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card feature-card span-3">
+            <div class="icon">P</div>
+            <h3>Product Lead</h3>
+            <p>Designed the HeatScope product concept, user workflow, risk framing, and dashboard experience.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">Q</div>
+            <h3>Quant / Data System</h3>
+            <p>Developed Z-score heat detection, drawdown-oriented backtesting, and confirmation-heavy weighting.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">E</div>
+            <h3>Engineering</h3>
+            <p>Built the FastAPI backend, Yahoo Finance integration, PTT / Reddit signals, and GitHub Pages frontend.</p>
+          </div>
+
+          <div class="card feature-card span-3">
+            <div class="icon">+</div>
+            <h3>Future Hiring</h3>
+            <p>Next hires include a data engineer, NLP engineer, and growth / partnership lead.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="funding">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Funding Ask</h2>
+            <p class="section-desc">
+              Pre-seed funding to turn a validated prototype into a scalable market intelligence product.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card span-4">
+            <div class="small-title">Ask</div>
+            <div class="big-number green">$500K</div>
+            <div class="subtext">Pre-seed financing.</div>
+          </div>
+
+          <div class="card span-4">
+            <div class="small-title">Runway</div>
+            <div class="big-number blue">18 months</div>
+            <div class="subtext">Product, data, infrastructure, and early go-to-market runway.</div>
+          </div>
+
+          <div class="card span-4">
+            <div class="small-title">Stage</div>
+            <div class="big-number yellow">MVP</div>
+            <div class="subtext">Live prototype with backtest validation.</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <h3 style="margin-top: 0; font-size: 24px;">Use of Funds</h3>
+          <div class="allocation-bar">
+            <span style="width: 40%; background: var(--blue);"></span>
+            <span style="width: 25%; background: var(--green);"></span>
+            <span style="width: 20%; background: var(--yellow);"></span>
+            <span style="width: 10%; background: var(--orange);"></span>
+            <span style="width: 5%; background: var(--red);"></span>
+          </div>
+
+          <div class="grid" style="margin-top: 18px;">
+            <div class="span-4"><span class="chip">40% Product engineering</span></div>
+            <div class="span-4"><span class="chip">25% Data coverage & model improvement</span></div>
+            <div class="span-4"><span class="chip">20% Go-to-market</span></div>
+            <div class="span-4"><span class="chip">10% Compliance & operations</span></div>
+            <div class="span-4"><span class="chip">5% Design & testing</span></div>
+            <div class="span-4"><span class="chip">Target: 15,000 registered users</span></div>
           </div>
         </div>
       </div>
@@ -1043,6 +1480,26 @@
       </div>
     </section>
 
+    <section id="summary">
+      <div class="wrap">
+        <div class="hero-card">
+          <div class="eyebrow">Summary</div>
+          <h2 class="section-title">Why HeatScope?</h2>
+          <p class="hero-sub">
+            Social heat can be measured before investors fully understand the risk.
+            HeatScope turns fragmented social and market signals into a single explainable heat-risk score,
+            validated against future drawdown behavior and delivered through a live web dashboard.
+          </p>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#system">Explore the live dashboard</a>
+            <a class="btn btn-secondary" href="#stock-demo">Search a stock</a>
+            <a class="btn btn-secondary" href="#funding">View funding plan</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <footer class="footer">
       <div class="wrap">
         <div class="logo" style="justify-content: center;">
@@ -1050,7 +1507,7 @@
           <span>HeatScope</span>
         </div>
         <div class="fine-print">
-          HeatScope is a risk-awareness tool, not investment advice.
+          HeatScope is a risk-awareness tool, not investment advice. Financial projections are illustrative internal assumptions.
         </div>
       </div>
     </footer>
@@ -1467,13 +1924,13 @@
 
           <div class="card span-3">
             <div class="small-title">Hit rate</div>
-            <div class="big-number" style="color: var(--yellow);">${safeText(data.hit_rate_20d_drawdown_minus_5pct, "81.09%")}</div>
+            <div class="big-number yellow">${safeText(data.hit_rate_20d_drawdown_minus_5pct, "81.09%")}</div>
             <div class="subtext">20-day -5% drawdown after high-risk signals</div>
           </div>
 
           <div class="card span-3">
             <div class="small-title">Avg. max drawdown</div>
-            <div class="big-number" style="color: var(--red);">${safeText(data.average_20d_max_drawdown, "-14.08%")}</div>
+            <div class="big-number red">${safeText(data.average_20d_max_drawdown, "-14.08%")}</div>
             <div class="subtext">Average 20-day max drawdown</div>
           </div>
 
