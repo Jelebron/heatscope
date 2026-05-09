@@ -63,7 +63,7 @@
       top: 0;
       z-index: 50;
       backdrop-filter: blur(18px);
-      background: rgba(8, 12, 26, 0.76);
+      background: rgba(8, 12, 26, 0.78);
       border-bottom: 1px solid var(--line);
     }
 
@@ -97,14 +97,42 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 8px;
       color: var(--muted);
       font-size: 13px;
       font-weight: 850;
+      overflow-x: auto;
+      white-space: nowrap;
+      max-width: 850px;
+      padding-bottom: 2px;
     }
 
-    .nav-links a:hover {
+    .nav-links::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .nav-links::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--muted);
+      transition: all 0.16s ease;
+    }
+
+    .nav-btn:hover {
       color: var(--text);
+      background: rgba(115, 168, 255, 0.16);
+      border-color: rgba(115, 168, 255, 0.42);
+      transform: translateY(-1px);
     }
 
     .pill {
@@ -711,8 +739,15 @@
         grid-column: span 12;
       }
 
+      .nav-inner {
+        flex-wrap: wrap;
+      }
+
       .nav-links {
-        display: none;
+        display: flex;
+        order: 3;
+        width: 100%;
+        max-width: 100%;
       }
 
       .search-box {
@@ -747,12 +782,18 @@
       </a>
 
       <div class="nav-links">
-        <a href="#problem">Problem</a>
-        <a href="#solution">Solution</a>
-        <a href="#system">Demo</a>
-        <a href="#traction">Traction</a>
-        <a href="#business">Business</a>
-        <a href="#funding">Funding</a>
+        <a class="nav-btn" href="#problem">Problem</a>
+        <a class="nav-btn" href="#solution">Solution</a>
+        <a class="nav-btn" href="#system">Live Demo</a>
+        <a class="nav-btn" href="#traction">Traction</a>
+        <a class="nav-btn" href="#backtest">Backtest</a>
+        <a class="nav-btn" href="#business">Business Model</a>
+        <a class="nav-btn" href="#market">Market</a>
+        <a class="nav-btn" href="#financials">Financials</a>
+        <a class="nav-btn" href="#competition">Advantage</a>
+        <a class="nav-btn" href="#method">Methodology</a>
+        <a class="nav-btn" href="#team">Team</a>
+        <a class="nav-btn" href="#funding">Funding</a>
       </div>
 
       <div class="pill">
@@ -777,6 +818,7 @@
             <div class="cta-row">
               <a class="btn btn-primary" href="#system">View Live Product</a>
               <a class="btn btn-secondary" href="#backtest">Backtest Evidence</a>
+              <a class="btn btn-secondary" href="#competition">Competitive Advantage</a>
               <a class="btn btn-secondary" href="#funding">Investment Case</a>
             </div>
 
@@ -1494,6 +1536,7 @@
           <div class="cta-row">
             <a class="btn btn-primary" href="#system">Explore the live dashboard</a>
             <a class="btn btn-secondary" href="#stock-demo">Search a stock</a>
+            <a class="btn btn-secondary" href="#competition">Compare alternatives</a>
             <a class="btn btn-secondary" href="#funding">View funding plan</a>
           </div>
         </div>
@@ -1520,6 +1563,60 @@
 
     const $ = (id) => document.getElementById(id);
 
+    function translateApiText(value) {
+      if (value === null || value === undefined) return value;
+
+      let text = String(value);
+
+      const dictionary = {
+        "目前處於社群高熱度區間": "Currently in a social high-heat period",
+        "目前未進入社群高熱度區間": "Not currently in a social high-heat period",
+        "正向升溫": "Positive momentum",
+        "負向爆量": "Negative surge",
+        "中性討論升溫": "Neutral discussion increase",
+        "恐慌型高熱度": "Panic-driven high heat",
+        "訊號不足": "Insufficient signal",
+        "正向高熱度": "Positive high heat",
+        "負向高熱度": "Negative high heat",
+        "正向低熱度": "Positive low heat",
+        "負向低熱度": "Negative low heat",
+        "中性觀察": "Neutral watch",
+        "題材發酵、FOMO 與追高風險偏高": "Narrative momentum, FOMO, and elevated chase-risk",
+        "利空或恐慌討論升溫，事件風險偏高": "Negative or panic discussion is rising; event risk is elevated",
+        "討論尚未過熱，但市場情緒偏正面": "Discussion is not overheated yet, but sentiment is positive",
+        "弱勢討論但尚未形成社群高熱度": "Weak sentiment without a clear social high-heat signal",
+        "社群與情緒訊號尚不明確": "Social and sentiment signals are not yet clear",
+        "此分數代表社群與市場訊號進入較高熱度風險區，歷史上較容易伴隨後續回撤風險。": "This score indicates that social and market signals have entered a high heat-risk zone, which has historically been associated with higher future drawdown risk.",
+        "目前訊號進入觀察區，尚未達高風險門檻。": "Current signals are in the watch zone but have not reached the high-risk threshold.",
+        "目前尚未形成明顯社群過熱風險。": "No clear social overheating risk has formed yet.",
+        "社群討論偏正向，可能屬於題材發酵或 FOMO 型熱度。": "Social discussion is leaning positive, suggesting narrative momentum or FOMO-style heat.",
+        "社群討論偏負向，需留意利空或恐慌型熱度。": "Social discussion is leaning negative; watch for downside news or panic-driven heat.",
+        "社群熱度明顯高於近一年平均，顯示討論度異常升溫。": "Social heat is significantly above its one-year average, indicating abnormal discussion activity.",
+        "高熱度區間已持續多個交易日，代表市場關注並非單日雜訊。": "The high-heat period has lasted multiple trading days, suggesting attention is not just a one-day spike.",
+        "社群熱度近期快速升溫，可能反映題材或事件正在擴散。": "Social heat has accelerated recently, possibly reflecting a spreading narrative or event.",
+        "股價近期動能偏強，追高風險上升。": "Recent price momentum is strong, increasing chase-risk.",
+        "成交量明顯放大，顯示市場交易行為同步升溫。": "Trading volume has expanded, showing that market activity is rising alongside attention.",
+        "社群與市場訊號同步進入高熱度風險區": "Social and market signals have entered a high heat-risk zone",
+        "熱度風險分數": "Heat risk score",
+        "社群與市場訊號同步進入高熱度風險區。": "Social and market signals have entered a high heat-risk zone.",
+        "股價近期走高，社群熱度仍待跟進確認。": "Recent price movement is positive, while social heat still needs confirmation.",
+        "社群討論熱度與股價同步走升，市場動能訊號偏正面。": "Social discussion and price momentum are rising together, suggesting positive market momentum.",
+        "目前社群與股價無明顯方向訊號，維持觀察。": "Current social and price signals are not directionally clear; remain in watch mode.",
+        "升溫中": "Warming up",
+        "降溫中": "Cooling down",
+        "持平": "Flat",
+        "高": "High",
+        "中": "Medium",
+        "低": "Low"
+      };
+
+      Object.entries(dictionary).forEach(([zh, en]) => {
+        text = text.replaceAll(zh, en);
+      });
+
+      return text;
+    }
+
     function clamp(n, min, max) {
       return Math.max(min, Math.min(max, n));
     }
@@ -1527,17 +1624,18 @@
     function fmt(value, suffix = "") {
       if (value === null || value === undefined || Number.isNaN(value)) return "N/A";
       if (typeof value === "number") return `${value.toFixed(1)}${suffix}`;
-      return `${value}${suffix}`;
+      return `${translateApiText(value)}${suffix}`;
     }
 
     function fmtPct(value) {
       if (value === null || value === undefined || Number.isNaN(value)) return "N/A";
-      if (typeof value === "string") return value;
+      if (typeof value === "string") return translateApiText(value);
       return `${value.toFixed(1)}%`;
     }
 
     function safeText(value, fallback = "N/A") {
-      return value === null || value === undefined || value === "" ? fallback : value;
+      if (value === null || value === undefined || value === "") return fallback;
+      return translateApiText(value);
     }
 
     function levelClass(level) {
@@ -1550,9 +1648,9 @@
 
     function riskLabel(level) {
       if (!level) return "Low";
-      const s = String(level).toLowerCase();
-      if (s.includes("高") || s.includes("high")) return "High";
-      if (s.includes("中") || s.includes("medium")) return "Medium";
+      const translated = translateApiText(level).toLowerCase();
+      if (translated.includes("high")) return "High";
+      if (translated.includes("medium")) return "Medium";
       return "Low";
     }
 
@@ -1615,13 +1713,13 @@
         || "The leaderboard ranks the highest HeatScope heat scores from the current Yahoo Finance-compatible universe.";
 
       $("universeDescription").innerHTML = `
-        ${desc}
+        ${safeText(desc)}
         <br />
         <span class="muted">
           Universe candidates: ${data.universe_total_candidates ?? data.universe_size ?? "N/A"} ·
           Processed: ${data.universe_processed_count ?? data.processed_count ?? "N/A"} ·
           Failed: ${data.universe_failed_count ?? data.failed ?? "N/A"} ·
-          Cache: ${data.cache_status ?? "N/A"}
+          Cache: ${safeText(data.cache_status, "N/A")}
         </span>
       `;
 
