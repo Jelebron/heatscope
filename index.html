@@ -348,6 +348,7 @@
     }
 
     .icon {
+      min-width: 42px;
       width: 42px;
       height: 42px;
       border-radius: 15px;
@@ -357,6 +358,7 @@
       background: rgba(115, 168, 255, 0.13);
       color: var(--blue);
       font-weight: 1000;
+      font-size: 12px;
     }
 
     .dashboard-shell {
@@ -1615,12 +1617,65 @@
 
     const $ = (id) => document.getElementById(id);
 
+    const TAIWAN_NAME_MAP = {
+      "聯發科": "MediaTek Inc.",
+      "台積電": "Taiwan Semiconductor Manufacturing Co.",
+      "鴻海": "Hon Hai Precision Industry Co.",
+      "台達電": "Delta Electronics Inc.",
+      "聯電": "United Microelectronics Corp.",
+      "日月光": "ASE Technology Holding Co.",
+      "廣達": "Quanta Computer Inc.",
+      "緯創": "Wistron Corp.",
+      "緯穎": "Wiwynn Corp.",
+      "技嘉": "Gigabyte Technology Co.",
+      "華碩": "ASUSTeK Computer Inc.",
+      "宏碁": "Acer Inc.",
+      "瑞昱": "Realtek Semiconductor Corp.",
+      "矽力": "Silergy Corp.",
+      "創意": "Global Unichip Corp.",
+      "世芯": "Alchip Technologies Ltd.",
+      "力積電": "Powerchip Semiconductor Manufacturing Corp."
+    };
+
+    function normalizeMixedLanguageText(text) {
+      let output = String(text);
+
+      output = output.replaceAll("：", ": ");
+      output = output.replaceAll("，", ", ");
+      output = output.replaceAll("。", ".");
+      output = output.replaceAll("High風險", "high-risk");
+      output = output.replaceAll("High於", "above");
+      output = output.replaceAll("High", "high");
+
+      output = output.replaceAll("社群熱度above近一年均值", "Social heat is above its one-year average");
+      output = output.replaceAll("社群熱度高於近一年均值", "Social heat is above its one-year average");
+      output = output.replaceAll("社群熱度明顯高於近一年平均", "Social heat is significantly above its one-year average");
+      output = output.replaceAll("已進入觀察區", "has entered the watch zone");
+      output = output.replaceAll("進入觀察區", "in the watch zone");
+      output = output.replaceAll("尚未達high-risk門檻", "but below the high-risk threshold");
+      output = output.replaceAll("尚未達high風險門檻", "but below the high-risk threshold");
+      output = output.replaceAll("尚未達高風險門檻", "but below the high-risk threshold");
+      output = output.replaceAll("觀察區", "watch zone");
+      output = output.replaceAll("高風險門檻", "high-risk threshold");
+      output = output.replaceAll("社群熱度", "Social heat");
+      output = output.replaceAll("近一年均值", "its one-year average");
+
+      output = output.replace(/\s+/g, " ").trim();
+
+      output = output.replaceAll("Social heat is above its one-year average, has entered the watch zone", "Social heat is above its one-year average and has entered the watch zone");
+      output = output.replaceAll("Social heat is significantly above its one-year average, has entered the watch zone", "Social heat is significantly above its one-year average and has entered the watch zone");
+      output = output.replaceAll("Heat risk score ", "Heat risk score ");
+
+      return output;
+    }
+
     function translateApiText(value) {
       if (value === null || value === undefined) return value;
 
       let text = String(value);
 
       const dictionary = {
+        "聯發科": "MediaTek Inc.",
         "目前處於社群高熱度區間": "Currently in a social high-heat period",
         "目前未進入社群高熱度區間": "Not currently in a social high-heat period",
         "正向升溫": "Positive momentum",
@@ -1654,6 +1709,10 @@
         "股價近期走高，社群熱度仍待跟進確認。": "Recent price movement is positive, while social heat still needs confirmation.",
         "社群討論熱度與股價同步走升，市場動能訊號偏正面。": "Social discussion and price momentum are rising together, suggesting positive market momentum.",
         "目前社群與股價無明顯方向訊號，維持觀察。": "Current social and price signals are not directionally clear; remain in watch mode.",
+        "社群熱度High於近一年均值，已進入觀察區。": "Social heat is above its one-year average and has entered the watch zone.",
+        "社群熱度High於近一年均值，已進入觀察區": "Social heat is above its one-year average and has entered the watch zone",
+        "進入觀察區，尚未達High風險門檻": "In the watch zone, but below the high-risk threshold",
+        "尚未達High風險門檻": "Below the high-risk threshold",
         "升溫中": "Warming up",
         "降溫中": "Cooling down",
         "持平": "Flat",
@@ -1666,7 +1725,14 @@
         text = text.replaceAll(zh, en);
       });
 
-      return text;
+      return normalizeMixedLanguageText(text);
+    }
+
+    function displayNameText(value, ticker = "") {
+      if (!value) return ticker || "N/A";
+      const raw = String(value);
+      if (TAIWAN_NAME_MAP[raw]) return TAIWAN_NAME_MAP[raw];
+      return translateApiText(raw);
     }
 
     function clamp(n, min, max) {
@@ -1800,7 +1866,7 @@
                 <tr onclick="loadStock('${row.canonical_ticker}')">
                   <td class="rank">${row.rank ?? i + 1}</td>
                   <td class="ticker">${safeText(row.canonical_ticker)}</td>
-                  <td class="muted">${safeText(row.display_name)}</td>
+                  <td class="muted">${displayNameText(row.display_name, row.canonical_ticker)}</td>
                   <td><strong>${fmt(row.heat_score)}</strong></td>
                   <td><span class="badge ${levelClass(row.heat_level)}">${riskLabel(row.heat_level)}</span></td>
                   <td><span class="badge badge-neutral">${safeText(sentimentText(row))}</span></td>
@@ -1856,6 +1922,7 @@
       const matrix = data.sentiment_heat_matrix || {};
       const reasons = data.risk_reason_summary || {};
       const weightVersion = flags.heat_risk_score_weight_version || data.heat_risk_score_weight_version || "confirmation_heavy_v1";
+      const displayName = displayNameText(data.display_name, data.canonical_ticker);
 
       const reasonItems = Array.isArray(reasons.reasons) && reasons.reasons.length
         ? reasons.reasons
@@ -1868,7 +1935,7 @@
       const resultHtml = `
         <div class="result-head">
           <div>
-            <h2 class="stock-title">${safeText(data.canonical_ticker)} · ${safeText(data.display_name)}</h2>
+            <h2 class="stock-title">${safeText(data.canonical_ticker)} · ${displayName}</h2>
             <div class="stock-subtitle">${safeText(riskHeadline(data), data.sentiment_observation || "Signals are being monitored.")}</div>
           </div>
           <span class="badge ${levelClass(data.heat_level)}">${riskLabel(data.heat_level)} Risk</span>
@@ -1893,13 +1960,13 @@
 
           <div class="card span-3">
             <div class="small-title">Current Status</div>
-            <div class="big-number" style="font-size: 28px;">${safeText(data.current_status)}</div>
+            <div class="big-number" style="font-size: clamp(22px, 5vw, 28px); line-height: 1.12;">${safeText(data.current_status)}</div>
             <div class="subtext">High-heat periods are triggered by social heat Z-score.</div>
           </div>
 
           <div class="card span-3">
             <div class="small-title">Sentiment</div>
-            <div class="big-number" style="font-size: 28px;">${safeText(sentiment.sentiment_label, sentimentText(data))}</div>
+            <div class="big-number" style="font-size: clamp(22px, 5vw, 28px); line-height: 1.12;">${safeText(sentiment.sentiment_label, sentimentText(data))}</div>
             <div class="subtext">
               Positive ${fmt((sentiment.positive_ratio ?? 0) * 100)}% ·
               Negative ${fmt((sentiment.negative_ratio ?? 0) * 100)}%
@@ -1908,7 +1975,7 @@
 
           <div class="card span-3">
             <div class="small-title">Heat Matrix</div>
-            <div class="big-number" style="font-size: 27px;">${safeText(matrix.quadrant, quadrantText(data))}</div>
+            <div class="big-number" style="font-size: clamp(22px, 5vw, 27px); line-height: 1.12;">${safeText(matrix.quadrant, quadrantText(data))}</div>
             <div class="subtext">${safeText(matrix.description, "Classifies heat level and sentiment direction.")}</div>
           </div>
 
