@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
  <head>
@@ -231,7 +230,7 @@
         SignalHeat Analytics
        </h1>
        <p class="hero-sub">
-        SignalHeat Analytics builds HeatScope, a social heat risk dashboard that turns fragmented market attention, price momentum, volume anomalies, and sentiment signals into explainable drawdown-risk warnings.
+        SignalHeat Analytics builds HeatScope, a social heat dashboard that turns fragmented market attention, discussion intensity, price behavior, and volume anomalies into an explainable heat-risk signal.
        </p>
        <div class="cta-row">
         <a class="btn btn-primary" href="#system">
@@ -248,7 +247,7 @@
         </a>
        </div>
        <div class="fine-print">
-        Product: HeatScope. Individual lookup supports Yahoo Finance-searchable U.S. and Taiwan stocks when data is available. The leaderboard displays the cached top heat-risk stocks from the supported universe.
+        Product: HeatScope. Individual lookup supports Yahoo Finance-searchable U.S. and Taiwan stocks when data is available. The leaderboard displays cached top heat-signal stocks from the supported universe.
        </div>
       </div>
       <div class="hero-metric-card">
@@ -260,7 +259,7 @@
          Drawdown
         </div>
         <div class="subtext">
-         Built as an overheating and pullback-risk warning system, not a buy signal.
+         Built as a research MVP for overheating and pullback-risk awareness, not a buy or sell signal.
         </div>
        </div>
        <div class="metric-big">
@@ -271,7 +270,7 @@
          81.5%
         </div>
         <div class="subtext">
-         High-risk signals followed by at least -5% max drawdown within 20 trading days.
+         Initial pitch-deck calibration: high-heat signals were followed by a ≥5% max drawdown within 20 trading days.
         </div>
        </div>
        <div class="metric-big">
@@ -297,7 +296,7 @@
         Investors see hype before they see risk.
        </h2>
        <p class="section-desc">
-        Retail investors are surrounded by social media signals, but most tools only show price charts, headlines, or raw discussion threads. HeatScope solves the missing layer: measuring when social attention itself becomes a risk signal.
+        Retail investors are surrounded by social media signals, but most tools only show price charts, headlines, or raw discussion threads. HeatScope solves the missing layer: measuring when social attention itself becomes unusually concentrated.
        </p>
       </div>
      </div>
@@ -509,7 +508,7 @@
         81.53%
        </div>
        <div class="subtext">
-        Previous calibration: high-risk signals followed by at least -5% max drawdown within 20 trading days.
+        Initial pitch-deck calibration: high-risk signals were followed by at least -5% max drawdown within 20 trading days.
        </div>
       </div>
       <div class="card span-3">
@@ -534,7 +533,7 @@
         Backtest Evidence
        </h2>
        <p class="section-desc">
-        HeatScope is validated as an overheating and drawdown-risk warning system. The objective is not to predict short-term upside, but to identify zones where chasing heat may become risky.
+        HeatScope is presented as a research MVP. The initial pitch-deck calibration showed a strong association between high heat and future drawdown, while extended validation and point-in-time social data collection remain ongoing.
        </p>
       </div>
      </div>
@@ -547,7 +546,7 @@
         6,358
        </div>
        <div class="subtext">
-        Previous calibration stock-day rows
+        Initial calibration stock-day rows
        </div>
       </div>
       <div class="card span-3">
@@ -569,7 +568,7 @@
         -14.90%
        </div>
        <div class="subtext">
-        Previous calibration average 20-day max drawdown
+        Initial calibration average 20-day max drawdown
        </div>
       </div>
       <div class="card span-3">
@@ -580,12 +579,12 @@
         v1
        </div>
        <div class="subtext">
-        confirmation_heavy_v1
+        balanced_v1
        </div>
       </div>
      </div>
      <div class="fine-print">
-      Previous calibration: 444 valid high-risk signals, 362 hits, Wilson 95% CI 77.66%–84.87%. Historical results do not guarantee future performance.
+      Initial pitch-deck calibration: 444 valid high-risk signals, 362 hits, Wilson 95% CI 77.66%–84.87%. Historical results do not guarantee future performance; extended point-in-time validation is ongoing.
      </div>
     </div>
    </section>
@@ -1133,7 +1132,7 @@
         Backtested
        </div>
        <div class="subtext">
-        Weighting was selected using historical drawdown-risk behavior rather than subjective scoring only.
+        The current demo uses the pitch-deck style balanced_v1 scoring definition; deeper production calibration will be refined after more point-in-time social data is collected.
        </div>
       </div>
       <div class="card span-3">
@@ -1471,7 +1470,7 @@
        Why SignalHeat Analytics?
       </h2>
       <p class="hero-sub">
-       Social heat can be measured before investors fully understand the risk. SignalHeat Analytics turns fragmented social and market signals into a single explainable heat-risk score through HeatScope, validated against future drawdown behavior and delivered through a live web dashboard.
+       Social heat can be measured before investors fully understand the risk. SignalHeat Analytics turns fragmented social and market signals into a single explainable heat-risk score through HeatScope, connected to future drawdown analysis and delivered through a live web dashboard.
       </p>
       <div class="cta-row">
        <a class="btn btn-primary" href="#system">
@@ -1500,7 +1499,7 @@
       </span>
      </div>
      <div class="fine-print">
-      HeatScope is a research MVP and does not provide investment advice. Backtest results are historical and do not guarantee future performance. Financial projections are illustrative internal assumptions.
+      HeatScope is a research MVP and does not provide investment advice. Initial calibration results are historical and do not guarantee future performance. Extended validation will continue as more point-in-time social data is collected. Financial projections are illustrative internal assumptions.
      </div>
     </div>
    </footer>
@@ -1584,12 +1583,16 @@
       const redditWeight = firstAvailable(flags.reddit_source_weight_used, flags.reddit_weight_used);
       const pttWeight = firstAvailable(flags.ptt_source_weight_used, flags.ptt_weight_used);
       if (!mode && redditWeight === null && pttWeight === null) return "";
-      let label = "Source weighting: updating on next cache refresh";
-      if (redditWeight !== null || pttWeight !== null) {
+      let label = "Social source weighting: combined PTT + Reddit peak normalization";
+      if (String(mode || "").toLowerCase().includes("combined")) {
+        label = "Social source weighting: combined PTT + Reddit peak normalization";
+      } else if (redditWeight !== null || pttWeight !== null) {
         const parts = [];
         if (redditWeight !== null && Number(redditWeight) > 0) parts.push(`Reddit ${pctFromUnit(redditWeight)}`);
         if (pttWeight !== null && Number(pttWeight) > 0) parts.push(`PTT ${pctFromUnit(pttWeight)}`);
         label = `Social source weighting: ${parts.join(", ") || "N/A"}`;
+      } else if (mode) {
+        label = `Social source weighting: ${safeText(mode)}`;
       }
       return `<div class="notice">${label}${marketType ? ` · Market: ${safeText(marketType)}` : ""}</div>`;
     }
@@ -1649,16 +1652,16 @@
       const sentiment = data.sentiment_v1 || {};
       const matrix = data.sentiment_heat_matrix || {};
       const reasons = data.risk_reason_summary || {};
-      const weightVersion = flags.heat_risk_score_weight_version || data.heat_risk_score_weight_version || "confirmation_heavy_v1";
+      const weightVersion = flags.heat_risk_score_weight_version || flags.weight_version || flags.scoring_logic_version || data.heat_risk_score_weight_version || "balanced_v1";
       const ticker = data.canonical_ticker || data.ticker || "N/A";
       const displayName = displayNameText(data.display_name, ticker);
       const summary = data.social_summary || {};
-      const reasonItems = Array.isArray(reasons.reasons) && reasons.reasons.length ? reasons.reasons : [riskHeadline(data), "HeatScope compares social attention with price and volume confirmation.", "High scores should be interpreted as overheating risk, not as buy signals."];
+      const reasonItems = Array.isArray(reasons.reasons) && reasons.reasons.length ? reasons.reasons : [riskHeadline(data), "HeatScope compares social attention with price and volume confirmation.", "High scores should be interpreted as heat-risk awareness signals, not as buy signals."];
 
       $("resultArea").innerHTML = `
         <div class="result-head"><div><h2 class="stock-title">${safeText(ticker)} · ${displayName}</h2><div class="stock-subtitle">${safeText(riskHeadline(data), data.sentiment_observation || "Signals are being monitored.")}</div>${renderDataFreshness(flags, data)}</div><span class="badge ${levelClass(data.heat_level)}">${riskLabel(data.heat_level)} Risk</span></div>
         <div class="grid">
-          <div class="card span-3"><div class="small-title">Heat Risk Score</div><div class="big-number" style="color:${score >= 70 ? "var(--red)" : score >= 40 ? "var(--yellow)" : "var(--green)"}">${fmt(score)}</div><div class="score-bar"><div class="score-knob" style="left:${clamp(score, 0, 100)}%"></div></div><div class="score-scale"><span>0</span><span>${fmt(score)} / 100</span><span>100</span></div><div class="subtext">Higher score means stronger overheating and drawdown-risk signal.</div></div>
+          <div class="card span-3"><div class="small-title">Heat Risk Score</div><div class="big-number" style="color:${score >= 70 ? "var(--red)" : score >= 40 ? "var(--yellow)" : "var(--green)"}">${fmt(score)}</div><div class="score-bar"><div class="score-knob" style="left:${clamp(score, 0, 100)}%"></div></div><div class="score-scale"><span>0</span><span>${fmt(score)} / 100</span><span>100</span></div><div class="subtext">Higher score means stronger social overheating / heat-risk signal.</div></div>
           <div class="card span-3"><div class="small-title">Current Status</div><div class="big-number" style="font-size:clamp(22px,5vw,28px);line-height:1.12;">${safeText(data.current_status)}</div><div class="subtext">High-heat windows are triggered by social heat z-score.</div></div>
           <div class="card span-3"><div class="small-title">Sentiment</div><div class="big-number" style="font-size:clamp(22px,5vw,28px);line-height:1.12;">${safeText(sentiment.sentiment_label, sentimentText(data))}</div><div class="subtext">Positive ${fmt((sentiment.positive_ratio ?? 0) * 100)}% · Negative ${fmt((sentiment.negative_ratio ?? 0) * 100)}%</div></div>
           <div class="card span-3"><div class="small-title">Heat Matrix</div><div class="big-number" style="font-size:clamp(22px,5vw,27px);line-height:1.12;">${safeText(matrix.quadrant, quadrantText(data))}</div><div class="subtext">${safeText(matrix.description, "Classifies heat level and sentiment direction.")}</div></div>
@@ -1686,7 +1689,7 @@
               <div class="metric-row"><span>Period return</span><span>${fmtPct(market.cumulative_return_pct)}</span></div>
               <div class="metric-row"><span>Volume change</span><span>${fmtPct(market.avg_volume_change_pct)}</span></div>
             </div></div><div class="fine-print">Scoring Inputs are used directly or indirectly in the heat_score calculation. Platform Activity summarizes recent 14-day source-level discussion activity; it is not a direct heat_score component.</div></div>
-          <div class="card span-6"><h3 style="margin-top:0;font-size:24px;">Why This Score?</h3><ul class="reason-list">${reasonItems.map(r => `<li>${safeText(r)}</li>`).join("")}</ul><div class="fine-print">${safeText(reasons.risk_interpretation, "This score is a risk-awareness signal, not investment advice.")}</div></div>
+          <div class="card span-6"><h3 style="margin-top:0;font-size:24px;">Why This Score?</h3><ul class="reason-list">${reasonItems.map(r => `<li>${safeText(r)}</li>`).join("")}</ul><div class="fine-print">${safeText(reasons.risk_interpretation, "This score is a risk-awareness signal from a research MVP, not investment advice.")}</div></div>
           <div class="card span-6"><h3 style="margin-top:0;font-size:24px;">Score Components</h3><div class="info-grid"><div class="info-block"><strong>${fmt((components.attention ?? 0) * 100)}%</strong><span>Attention</span></div><div class="info-block"><strong>${fmt((components.duration ?? 0) * 100)}%</strong><span>Duration</span></div><div class="info-block"><strong>${fmt((components.acceleration ?? 0) * 100)}%</strong><span>Acceleration</span></div><div class="info-block"><strong>${fmt((components.price ?? 0) * 100)}%</strong><span>Price momentum</span></div><div class="info-block"><strong>${fmt((components.volume ?? 0) * 100)}%</strong><span>Volume anomaly</span></div><div class="info-block"><strong>${fmt((components.available_weight_sum ?? 0) * 100)}%</strong><span>Available weight</span></div></div></div>
         </div>`;
       renderChart(data);
@@ -1718,11 +1721,9 @@
     }
 
     async function loadBacktestSummary() {
-      try {
-        const data = await fetchJson(`${API_BASE}/api/backtest/summary`);
-        const cards = $("backtestCards");
-        cards.innerHTML = `<div class="card span-3"><div class="small-title">Observations</div><div class="big-number">${safeText(data.backtest_observations, "6,358")}</div><div class="subtext">Historical trading-day rows</div></div><div class="card span-3"><div class="small-title">Hit rate</div><div class="big-number yellow">${safeText(data.hit_rate_20d_drawdown_minus_5pct, "81.53%")}</div><div class="subtext">20-day -5% max drawdown after high-risk signals</div></div><div class="card span-3"><div class="small-title">Avg. max drawdown</div><div class="big-number red">${safeText(data.average_20d_max_drawdown, "-14.90%")}</div><div class="subtext">Average 20-day max drawdown</div></div><div class="card span-3"><div class="small-title">Weight version</div><div class="big-number" style="font-size:25px;">${safeText(data.weight_version, "confirmation_heavy_v1")}</div><div class="subtext">${safeText(data.interpretation, "Overheating and drawdown-risk warning system.")}</div></div>`;
-      } catch (err) { console.warn("Backtest summary unavailable", err); }
+      const cards = $("backtestCards");
+      if (!cards) return;
+      cards.innerHTML = `<div class="card span-3"><div class="small-title">Observations</div><div class="big-number">6,358</div><div class="subtext">Initial pitch-deck calibration rows</div></div><div class="card span-3"><div class="small-title">Hit rate</div><div class="big-number yellow">81.53%</div><div class="subtext">Initial calibration: 20-day -5% max drawdown after high-risk signals</div></div><div class="card span-3"><div class="small-title">Avg. max drawdown</div><div class="big-number red">-14.90%</div><div class="subtext">Initial calibration average 20-day max drawdown</div></div><div class="card span-3"><div class="small-title">Weight version</div><div class="big-number" style="font-size:25px;">balanced_v1</div><div class="subtext">Pitch-deck style Heat Risk scoring. Extended validation is ongoing.</div></div>`;
     }
 
     $("searchBtn").addEventListener("click", () => loadStock($("searchInput").value));
